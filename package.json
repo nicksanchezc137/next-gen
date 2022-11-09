@@ -1,0 +1,52 @@
+{
+  "name": "next-gen",
+  "version": "1.0.0",
+  "description": "FastTrack your projects with a powerful CLI tool that auto-generates the most important code for you.",
+  "main": "./bin/index.js",
+  "bin": {
+    "genie": "./bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "nodemon --watch 'src/**/*.ts' --ignore src/utils  --exec 'ts-node' src/index.ts",
+    "build": "rimraf ./bin && tsc",
+    "start:prod": "npm run build && node bin/index.js",
+    "local": "npm run build && npm i -g . && next-gen",
+    "refresh": "sudo rm -rf node_modules. && npm i"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nicksanchezc137/next-gen.git"
+  },
+  "keywords": [
+    "next-js"
+  ],
+  "author": "Nick Nderitu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nicksanchezc137/next-gen/issues"
+  },
+  "homepage": "https://github.com/nicksanchezc137/next-gen#readme",
+  "devDependencies": {
+    "@types/clear": "^0.1.2",
+    "@types/figlet": "^1.5.5",
+    "@types/node": "^18.11.4",
+    "node-ts": "^5.1.2",
+    "nodemon": "^2.0.20",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "clear": "^0.1.0",
+    "commander": "^9.4.1",
+    "figlet": "^1.5.2",
+    "i": "^0.3.7",
+    "mysql": "^2.18.1",
+    "npm": "^8.19.2",
+    "path": "^0.12.7",
+    "pluralize": "^8.0.0",
+    "prettier": "^2.7.1"
+  }
+}

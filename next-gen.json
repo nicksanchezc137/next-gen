@@ -1,0 +1,93 @@
+{
+  "projectName":"epren-academy",
+  "db": {
+    "host": "localhost",
+    "user": "user",
+    "password": "password",
+    "database": "test-db"
+  },
+  "dropTables":true,
+  "models": [
+    {
+      "name": "Student",
+      "includeTimeStamps": true,
+      "belongsTo": [],
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "visibleOnList": true
+        }
+      ],
+      "operations": {
+        "CREATE": true,
+        "READ": true,
+        "UPDATE": true,
+        "DELETE": true
+      }
+    },
+    {
+      "name": "Supplementary",
+      "includeTimeStamps": true,
+      "belongsTo": ["Student"],
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "visibleOnList": true
+        },
+        {
+          "name": "grade",
+          "type": "number",
+          "required": true,
+          "visibleOnList": true
+        }
+      ],
+      "operations": {
+        "CREATE": true,
+        "READ": true,
+        "UPDATE": true,
+        "DELETE": true
+      }
+    },
+    {
+      "name": "Grade",
+      "includeTimeStamps": true,
+      "belongsTo": ["Student"],
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "visibleOnList": true
+        },
+        {
+          "name": "deadline",
+          "type": "number",
+          "required": true,
+          "visibleOnList": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": true,
+          "visibleOnList": true
+        },
+        {
+          "name": "difficulty",
+          "type": "string",
+          "required": true,
+          "visibleOnList": true
+        }
+      ],
+      "operations": {
+        "CREATE": true,
+        "READ": true,
+        "UPDATE": true,
+        "DELETE": true
+      }
+    }
+  ]
+}
