@@ -2,6 +2,7 @@ import { APIGenerator } from "./generators/api-generator";
 import { ComponentGenerator } from "./generators/component-generator";
 import { ConfigGenerator } from "./generators/config-generator";
 import { SchemaGenerator } from "./generators/schema-generator";
+import { TypesGenerator } from "./generators/types-generator";
 import { UIGenerator } from "./generators/ui-generator";
 import { UtilsGenerator } from "./generators/utils-generator";
 import { FileToGenerate, MainConfig, MarkUp, Model } from "./types";
@@ -38,6 +39,9 @@ export default class Executor {
     const utilsGenerator = new UtilsGenerator();
     this.generateUtilFiles(utilsGenerator.generateUtilsCode());
 
+    const typesGenerator = new TypesGenerator();
+    this.generateTypeFiles(typesGenerator.generateTypesCode());
+
     const configGenerator = new ConfigGenerator();
     this.generateConfigFiles(configGenerator.generateConfigs());
   }
@@ -60,12 +64,12 @@ export default class Executor {
     runQuery(
       contents,
       (results: any, err: any) => {
-         if(results){
+        if (results) {
           console.log("Generated DB schema successfully ✔️");
-         }
-         if(err){
+        }
+        if (err) {
           console.log(err);
-         }
+        }
       },
       this.mainConfig
     );
@@ -106,6 +110,18 @@ export default class Executor {
         fileName,
         this.mainConfig.projectName,
         "utils/"
+      );
+    }
+  }
+
+  async generateTypeFiles(typeFiles: FileToGenerate[]) {
+    for (let file of typeFiles) {
+      const { contents, fileName, path } = file;
+      await writeFile(
+        contents,
+        fileName,
+        this.mainConfig.projectName,
+        "types/"
       );
     }
   }

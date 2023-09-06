@@ -33,4 +33,4 @@ export const PAGE_TYPE = {
   CREATE: "CREATE",
 };
 
-export const IN_PROJECT_COMMANDS = ["npm i mysql", "npm install -D tailwindcss postcss autoprefixer","npx tailwindcss init -p", "npm i pluralize","npm i @fortawesome/react-fontawesome","npm i react-table"]
+export const PROJECT_COMMANDS = ["npm i mysql", "npm install -D tailwindcss postcss autoprefixer","npx tailwindcss init -p", "npm i pluralize","npm i @fortawesome/react-fontawesome","npm i react-table"]

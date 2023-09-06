@@ -18,6 +18,8 @@ const CREATE_PAGE_TEMPLATE = (
     import { ChangeEvent, FormEvent, useState } from "react";
     import Input from "../../components/Input";
     import { handleRequest } from "../../utils/api.utils";
+    import MainLayout from "../../components/MainLayout";
+    import Button from "../../components/Button";
     type GenericObject = { [key: string]: any };
     const ${componentName}: NextPage = () => {
       const router = useRouter();
@@ -36,22 +38,27 @@ const CREATE_PAGE_TEMPLATE = (
       }
     
       return (
-        <div className="w-full min-h-[100vh] bg-gray-100 flex items-start justify-center">
-          <form
-            onSubmit={onSubmit}
-            className="bg-white w-[30rem] mt-[10rem] flex items-center flex-col p-4 text-black"
-          >
-            <h1 className="font-bold uppercase">Create ${modelName}</h1>
+        <MainLayout>
+        <div className="w-full min-h-[100vh] flex items-start justify-center">
+        <form
+          onSubmit={onSubmit}
+          className="w-[30rem] flex items-center flex-col px-4 text-black"
+        >
+            <h1 className="font-bold text-white text-[2.5rem]">Create ${modelName}</h1>
     
              ${fieldsMarkUp}
     
-            <Input
-              inputType="submit"
-              inputContainerClassName="w-full mt-5 bg-indigo-600 text-white py-2 rounded-sm font-semibold tracking-tight"
-              inputClassName="w-full cursor-pointer"
+            <div className="flex mt-10 justify-between w-full">
+            <Button
+              isLight
+              caption="Back"
+              onButtonClick={() => router.back()}
             />
+            <Input inputType="submit" inputClassName="w-full cursor-pointer" />
+          </div>
           </form>
         </div>
+        </MainLayout>
       );
     };
     
@@ -74,6 +81,9 @@ const UPDATE_PAGE_TEMPLATE = (
     import { ChangeEvent, FormEvent, useState, useEffect } from "react";
     import Input from "../../components/Input";
     import { handleRequest } from "../../utils/api.utils";
+    import MainLayout from "../../components/MainLayout";
+    import Button from "../../components/Button";
+
     type GenericObject = { [key: string]: any };
     const ${componentName}: NextPage = () => {
       const router = useRouter();
@@ -100,22 +110,28 @@ const UPDATE_PAGE_TEMPLATE = (
       }
     
       return (
-        <div className="w-full min-h-[100vh] bg-gray-100 flex items-start justify-center">
+        <MainLayout>
+        <div className="w-full min-h-[100vh] flex items-start justify-center">
           <form
             onSubmit={onSubmit}
-            className="bg-white w-[30rem] mt-[10rem] flex items-center flex-col p-4 text-black"
+            className="w-[30rem] flex items-start flex-col px-4 text-black"
           >
-            <h1 className="font-bold uppercase">Edit ${modelName}</h1>
+          <h1 className="text-white text-[2.5rem] font-bold">Edit ${modelName}</h1>
     
              ${fieldsMarkUp}
     
-            <Input
-              inputType="submit"
-              inputContainerClassName="w-full mt-5 bg-indigo-600 text-white py-2 rounded-sm font-semibold tracking-tight"
-              inputClassName="w-full cursor-pointer"
+            <div className="flex mt-10 justify-between w-full">
+            <Button
+              isLight
+              caption="Back"
+              onButtonClick={() => router.back()}
             />
+
+            <Input inputType="submit" inputClassName="w-full cursor-pointer" />
+          </div>
           </form>
         </div>
+        </MainLayout>
       );
     };
     
@@ -135,6 +151,7 @@ const READ_PAGE_TEMPLATE = (modelName: string) => {
     import Table from "../../components/Table";
     import { handleRequest } from "../../utils/api.utils";
     import Button from "../../components/Button";
+    import MainLayout from "../../components/MainLayout";
     type GenericObject = { [key: string]: any };
     const ${componentName}: NextPage = () => {
       const router = useRouter();
@@ -149,12 +166,18 @@ const READ_PAGE_TEMPLATE = (modelName: string) => {
       }, []);
     
       return (
-        <div className="w-full min-h-[100vh] bg-gray-100 flex items-start justify-center p-4">
-          <div className="overflow-x-auto relative shadow-md sm:rounded-lg w-full">
-          <Button caption="New" onButtonClick={()=>router.push("/${controllerName}/create")}/>
-           ${Table.instance(modelName)}
-          </div>
+        <MainLayout>
+        <div className="w-full min-h-[100vh] ml-[10rem] flex flex-col items-start justify-start p-4 mt-[1.5rem]">
+        <div className="w-full flex items-center justify-between w-full">
+          <h1 className="text-white text-[2.5rem] font-bold">${controllerName}</h1>
+          <Button caption="Add ${modelName}" onButtonClick={()=>router.push("/${controllerName}/create")}/>
         </div>
+        <div className="overflow-x-auto relative sm:rounded-lg w-full">
+        ${Table.instance(modelName)}
+        </div>
+        </div>
+
+        </MainLayout>
       );
     };
     
@@ -179,17 +202,17 @@ const MAIN_APP = () => {
   };
 };
 
-const HOME_PAGE = (instances: string) => {
+const HOME_PAGE = () => {
   return {
     fileName: "index.tsx",
     contents: `import React from 'react'
-    import Tile from '../components/Tile'
+    import MainLayout from "../components/MainLayout";
     
     export default function Home() {
       return (
-        <div className='flex flex-wrap w-full p-[5rem] space-x-1'>
-            ${instances}
-        </div>
+        <MainLayout>
+        <></>
+        </MainLayout>
       )
     }
     
@@ -203,5 +226,5 @@ export {
   UPDATE_PAGE_TEMPLATE,
   READ_PAGE_TEMPLATE,
   MAIN_APP,
-  HOME_PAGE
+  HOME_PAGE,
 };

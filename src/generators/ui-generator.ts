@@ -58,11 +58,7 @@ export class UIGenerator {
     return modelPagesMarkup;
   }
   generateHomePage() {
-    let tileInstances = "";
-    this.models.forEach((model) => {
-      tileInstances += Tile.instance(model.name);
-    });
-    return HOME_PAGE(tileInstances);
+    return HOME_PAGE();
   }
   getAllPagesMarkUp(): MarkUp[] {
     let allPagesMarkUp: MarkUp[] = [];

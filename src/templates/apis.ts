@@ -6,16 +6,14 @@ export const DB_CONFIG = (mainConfig: MainConfig) => {
   const { host, user, password, database } = mainConfig.db;
   return {
     contents: `
-    const mysql = require("mysql");
-
-var sql = mysql.createPool({
-  host: "${host}",
-  user: "${user}",
-  password: "${password}",
-  database: "${database}",
-});
-
-export { sql };
+      const mysql = require("mysql");
+      var sql = mysql.createPool({
+        host: "${host}",
+        user: "${user}",
+        password: "${password}",
+        database: "${database}",
+      });
+      export {sql};
 `,
     fileName: "db.ts",
   };
@@ -27,7 +25,9 @@ function generateBelongToRoutes(
 ) {
   let template = (relatedModelName: string) => {
     return `
-    if (req.url?.includes("${pluralize.plural(relatedModelName.toLowerCase())}")) {
+    if (req.url?.includes("${pluralize.plural(
+      relatedModelName.toLowerCase()
+    )}")) {
       let ${relatedModelName.toLowerCase()}Controller = new ${capitalizeFirstLetter(
       relatedModelName.toLowerCase()
     )}Controller();
@@ -74,8 +74,7 @@ import { ${capitalizeFirstLetter(
 ${generateBelongToControllerImports(modelChildrenNames)}      
 
 type GenericObject = { [key: string]: any };
-const controllerName = "${pluralize
-  .plural(model.name).toLowerCase()}";
+const controllerName = "${pluralize.plural(model.name).toLowerCase()}";
 
 export default function handler(
   req: NextApiRequest,

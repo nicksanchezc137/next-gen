@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
-import { CONFIG_FILE_NAME, IN_PROJECT_COMMANDS } from "./constants";
-import Executor from "./Executor";
+import { CONFIG_FILE_NAME, PROJECT_COMMANDS } from "./constants";
+import Executor from "./executor";
 import { MainConfig } from "./types";
 import { runShellCommand } from "./utils/commands.utils";
 import { readFile } from "./utils/files.utils";
@@ -19,9 +19,14 @@ console.log(
 
 async function launchProcess() {
   const config = await readFile(CONFIG_FILE_NAME);
-  generateProject(config?.projectName, () => {
-    runProjectCommands(config?.projectName, () => {
-      generateProjectFiles(config);
+  runShellCommand("npm i create-next-app@13.0.2 -g", () => {
+    generateProject(config?.projectName, () => {
+      runProjectCommands(config?.projectName, () => {
+        generateProjectFiles(config);
+        runShellCommand(`cd ${config?.projectName} && npm run dev`, () => {
+          console.log("Exiting...");
+        });
+      });
     });
   });
 }
@@ -36,7 +41,7 @@ function generateProjectFiles(config: MainConfig) {
 async function generateProject(projectName: string, callBack: Function) {
   console.log(`Generating Next JS project in folder ${projectName}...`);
   runShellCommand(
-    `npx create-next-app ${projectName} --eslint --ts --use-npm`,
+    `create-next-app ${projectName} --eslint --ts --use-npm`,
     (error: string, stderr: string, stdout: string) => {
       if (!error && !stderr) {
         console.log("Next JS project created successfully ✔️");
@@ -52,7 +57,7 @@ function runProjectCommands(projectName: string, callBack: Function) {
   function runCommand(index: number, commands: string[]) {
     if (index < commands.length) {
       runShellCommand(
-        IN_PROJECT_COMMANDS[index],
+        PROJECT_COMMANDS[index],
         () => {
           runCommand((index += 1), commands);
         },
@@ -64,12 +69,11 @@ function runProjectCommands(projectName: string, callBack: Function) {
       return;
     }
   }
-  runCommand(index, IN_PROJECT_COMMANDS);
+  runCommand(index, PROJECT_COMMANDS);
 }
 launchProcess();
 
 //This works great for me:
-
 
 //dockerized version that uses docker compose
 //passport auth
@@ -77,7 +81,7 @@ launchProcess();
 //logging as processes happen
 //error handling eg. if unable to access DB
 //automatically run after finishing setup
-//add select to pick parent from child and update 
+//add select to pick parent from child and update
 //add fields types. select and date.
 
 //use theme https://www.behance.net/gallery/18218871/Simply-Dashboard-Flat-design
