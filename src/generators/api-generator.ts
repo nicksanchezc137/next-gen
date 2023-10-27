@@ -75,7 +75,7 @@ export class APIGenerator {
       modelMethods += CREATE_MODEL_METHOD(model.name);
     }
     if (model.operations.UPDATE) {
-      modelMethods += UPDATE_MODEL_METHOD(model.fields, model.name);
+      modelMethods += UPDATE_MODEL_METHOD(model.fields, model.name,model.belongsTo);
     }
     if (model.operations.READ) {
       modelMethods += FIND_ONE_MODEL_METHOD(model.name);

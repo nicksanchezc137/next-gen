@@ -44,7 +44,7 @@ export const CREATE_BELONGS_TO_RELATIONSHIP = (
 ) => {
   const primaryTableName = pluralize(primaryModelName).toLowerCase();
   const secondaryTableName = pluralize(secondaryModelName).toLowerCase();
-  const primaryKey = `${primaryModelName.toLowerCase()}_id`;
+  const primaryKey = `${pluralize.singular(primaryModelName.toLowerCase())}_id`;
 
   return `
 ALTER TABLE ${secondaryTableName}

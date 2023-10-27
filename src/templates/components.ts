@@ -1,5 +1,5 @@
 import { FIELD_IMPLEMENTATION_TYPES } from "../constants";
-import { Field } from "../types";
+import { Field, Model } from "../types";
 import { getFieldTypeName } from "../utils/components.utils";
 import { capitalizeFirstLetter } from "../utils/general.utils";
 var pluralize = require("pluralize");
@@ -47,7 +47,7 @@ export const Input = {
           className={\`\${inputClassName} \${
             inputType == "submit"
               ? "max-w-[13rem] bg-white text-black px-10 py-2 rounded-full font-semibold tracking-tight"
-              : "border-b border-[#A3BEAE] outline-none bg-[#5B8B6C] text-white"
+              : "border-b border-[#A3BEAE] outline-none bg-[#5B8B6C] text-white placeholder-[#A3BEAE]"
           }\`}
           value={inputValue}
           {...props}
@@ -57,7 +57,7 @@ export const Input = {
   }
   
 `,
-   instance: (field: Field) => {
+  instance: (field: Field) => {
     return ` 
   <Input
     inputContainerClassName="w-full mt-10"
@@ -68,28 +68,232 @@ export const Input = {
     inputType="${getFieldTypeName(field.type, FIELD_IMPLEMENTATION_TYPES.UI)}"
     inputRequired={${field.required}}
     inputName="${field.name.toLowerCase()}"
-    onInputChange={handleInputChange}
-    inputValue={formData?.${field.name}}
+    onInputChange={handleChange}
+    inputValue={formData["${field.name}"]}
   />`;
   },
   fileName: "Input.tsx",
 };
 
+export const Select = {
+  contents: `import React from "react";
+
+  type SelectOption = { value: number; label: string };
+  export default function Select({
+    options,
+    label,
+    selectContainerClassName,
+    selectClassName,
+    labelClassName,
+    selectName,
+    onSelectChange,
+    selectValue
+  }: {
+    options: SelectOption[];
+    label: string;
+    selectContainerClassName?: string;
+    selectClassName?: string;
+    labelClassName?: string;
+    selectName?: string;
+    onSelectChange?: React.ChangeEventHandler<HTMLSelectElement>;
+    selectValue?:string | number;
+  }) {
+    return (
+      <div className={\`\${selectContainerClassName || ""}\`}>
+        <label className={\`\${labelClassName || ""} text-white\`}>{label}</label>
+        <select
+          name={selectName}
+          value={selectValue}
+          onChange={onSelectChange}
+          className={\`\${
+            selectClassName || ""
+          } outline-none bg-[#5B8B6C] text-white\`}
+        >
+          <option>Select</option>
+          {options.map(({ label, value }) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+  
+  
+`,
+  instance: (field: Field) => {
+    return ``;
+  },
+  fileName: "Select.tsx",
+};
+export const DateTimePicker = {
+  contents: `import React, { ChangeEvent, useEffect, useState } from "react";
+  import {  formatServerDate } from "../utils/general.utils";
+  
+  export default function DateTimePicker({
+    onValueChange,
+    initialValue,
+    dateTimeInputContainerClassName,
+    labelClassName,
+    dateTimeInputLabel,
+    dateTimeInputRequired,
+  }: {
+    onValueChange: Function;
+    initialValue: { date: string; time: string };
+    dateTimeInputContainerClassName?: string;
+    labelClassName?: string;
+    dateTimeInputLabel?: string;
+    dateTimeInputRequired?: boolean;
+  }) {
+    const [dateTime, setDateTime] = useState(initialValue);
+  
+    function onChange(event: ChangeEvent<HTMLInputElement>) {
+      setDateTime({ ...dateTime, [event.target.name]: event.target.value });
+    }
+    useEffect(() => {
+      const { date, time } = dateTime;
+      onValueChange(formatServerDate(\`\${date} \${time}\`));
+    }, [dateTime]);
+  
+    return (
+      <div className={dateTimeInputContainerClassName}>
+        <label className={\`w-full text-white \${labelClassName || ""}\`}>
+          {dateTimeInputLabel || ""}
+          {dateTimeInputRequired ? "*" : ""}
+        </label>
+        <div className="w-full">
+        <input
+          value={dateTime.date}
+          onChange={onChange}
+          name="date"
+          className="w-1/2 border-b border-[#A3BEAE] outline-none bg-[#5B8B6C] text-white placeholder-[#A3BEAE]"
+          type="date"
+        />
+        <input
+          value={dateTime.time}
+          onChange={onChange}
+          name="time"
+          className="w-1/2 border-b border-[#A3BEAE] outline-none bg-[#5B8B6C] text-white placeholder-[#A3BEAE]"
+          type="time"
+        />
+        </div>
+       
+      </div>
+    );
+  }
+  
+`,
+  instance: (field: Field, isCreate: boolean) => {
+    return `  <DateTimePicker
+    dateTimeInputLabel="${field.name}"
+    dateTimeInputContainerClassName="w-full mt-10"
+    initialValue={${
+      isCreate ? "getCurrentDateTime()" : `formData["${field.name}"]`
+    }}
+    onValueChange={(value: any) => setFormData({ ...formData })}
+  />`;
+  },
+  fileName: "DateTimePicker.tsx",
+};
+export const TextArea = {
+  contents: `import React from "react";
+  type TextareaProps = {
+    onTextareaChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
+    textareaPlaceholder?: string;
+    textareaName?: string;
+    textareaType?: string;
+    textareaClassName?: string;
+    textareaLabel?: string;
+    textareaId?: string | number;
+    labelClassName?: string;
+    textareaContainerClassName?: string;
+    textareaRequired?: boolean;
+    textareaValue?: string | number;
+  };
+  export default function Textarea({
+    onTextareaChange,
+    textareaPlaceholder,
+    textareaName,
+    textareaType,
+    textareaClassName,
+    textareaLabel,
+    textareaId,
+    labelClassName,
+    textareaContainerClassName,
+    textareaRequired,
+    textareaValue,
+    ...props
+  }: TextareaProps) {
+    return (
+      <div className={textareaContainerClassName}>
+        <label className={\`text-white \${labelClassName || ""}\`}>
+          {textareaLabel || ""}
+          {textareaRequired ? "*" : ""}
+        </label>
+        <textarea
+          onChange={onTextareaChange}
+          placeholder={textareaPlaceholder}
+          name={textareaName}
+          rows={5}
+          className={\`\${textareaClassName} \${
+            textareaType == "submit"
+              ? "max-w-[13rem] bg-white text-black px-10 py-2 rounded-full font-semibold tracking-tight"
+              : "border border-[#A3BEAE] outline-none bg-[#5B8B6C] text-white placeholder-[#A3BEAE]"
+          }\`}
+          value={textareaValue}
+          {...props}
+        />
+      </div>
+    );
+  }
+  
+
+`,
+  instance: (field: Field) => {
+    return `   <Textarea
+    textareaContainerClassName="w-full mt-10"
+    textareaClassName="px-4 py-2 w-full text-[1.2rem]"
+    labelClassName="font-bold"
+    textareaLabel="${field.name}"
+    textareaPlaceholder="${field.name}"
+    textareaType="text"
+    textareaRequired={true}
+    textareaName="${field.name}"
+    onTextareaChange={(event)=>setFormData({...formData,description:event.target.value})}
+    textareaValue={formData["${field.name}"]}
+  />`;
+  },
+  fileName: "TextArea.tsx",
+};
+
 export const Table = {
   contents: `import { useRouter } from "next/router";
-  import React from "react";
+  import React, { useEffect, useState } from "react";
   import { handleRequest } from "../utils/api.utils";
   import TableHead from "./TableHead";
   import TableRow from "./TableRow";
   type GenericObject = { [key: string]: any };
+  const PAGE_LENGTH = 10;
   export default function Table({
     values,
     apiController,
+    drillable,
   }: {
     values: GenericObject[];
     apiController: string;
+    drillable?: boolean;
   }) {
     const router = useRouter();
+    const [rows, setRows] = useState<GenericObject>([]);
+    const [page, setPage] = useState(1);
+  
+    useEffect(() => {
+      const end = PAGE_LENGTH * page;
+      const start = end - PAGE_LENGTH;
+      let currentRows = values.slice(start, end);
+      setRows(currentRows);
+    }, [page, values]);
     const headProps = () => {
       if (!values[0]) {
         return null;
@@ -112,14 +316,31 @@ export const Table = {
       return tableRowProps;
     };
     function deleteRecord(id: number) {
-      handleRequest(\`\${apiController}?id=\${id}\`, "DELETE", {}).then((user: any) => router.reload());
+      handleRequest(\`\${apiController}?id=\${id}\`, "DELETE", {}).then((user: any) =>
+        router.reload()
+      );
+    }
+    const isLastPage = () => page === Math.ceil(values.length / PAGE_LENGTH);
+  
+    const isFirstPage = () => page === 1;
+  
+    function nextPage() {
+      const currentPage = isLastPage() ? page : page + 1;
+      setPage(currentPage);
+    }
+    function prevPage() {
+      const currentPage = isFirstPage() ? page : page - 1;
+      setPage(currentPage);
     }
     return (
+      <div>
       <table className="w-full text-sm text-left text-gray-500">
         <TableHead {...headProps()} />
         <tbody>
-          {values.map((value) => (
+        {rows?.map((value: GenericObject) => (
             <TableRow
+              drillable={drillable}
+              apiController={apiController}
               onDelete={() => deleteRecord(value.id)}
               editRoute={\`/\${apiController}/edit?id=\${value.id}\`}
               {...rowProps(value)}
@@ -129,14 +350,31 @@ export const Table = {
           ))}
         </tbody>
       </table>
+      <div className="text-white font-bold w-full flex justify-between">
+        <span
+          onClick={prevPage}
+          className={\`\${isFirstPage() ? "text-[#A3BEAE]" : "cursor-pointer"}\`}
+        >
+          {"<"}{" "}
+        </span>
+        <span
+          onClick={nextPage}
+          className={\`\${isLastPage() ? "text-[#A3BEAE]" : "cursor-pointer"}\`}
+        >
+          {">"}{" "}
+        </span>
+      </div>
+    </div>
     );
   }
    
 `,
-  instance: (modelName: string) => {
+  instance: (modelName: string, hasChildren: boolean) => {
     const apiController = pluralize.plural(modelName).toLowerCase();
     return ` 
-    <Table values={${apiController}} apiController = "${apiController}" />
+    <Table ${
+      hasChildren ? "drillable" : ""
+    } values={${apiController}} apiController = "${apiController}" />
    `;
   },
   fileName: "Table.tsx",
@@ -199,7 +437,10 @@ export const TableHead = {
 
 export const TableRow = {
   contents: `import Link from "next/link";
+  import { useRouter } from "next/router";
   import React from "react";
+  import { formatDate, isDateTime } from "../utils/general.utils";
+
   
   export default function TableRow({
     id,
@@ -210,6 +451,8 @@ export const TableRow = {
     value5,
     editRoute,
     onDelete,
+    drillable,
+    apiController,
   }: {
     id: number;
     value1?: string | number;
@@ -218,34 +461,64 @@ export const TableRow = {
     value4?: string | number;
     value5?: string | number;
     editRoute?: string;
+    drillable?: boolean;
     onDelete: Function;
+    apiController: string;
   }) {
+    const router = useRouter();
+  const infoPath = \`/\${apiController}/info\`;
+
+  function formatValue(value: string | number | undefined) {
+    if (value && isDateTime(value)) {
+      return formatDate(value);
+    }
+    return value;
+  }
     return (
       <tr className="border-b text-white">
-        <th
-          scope="row"
-          className="py-4 px-6 font-medium whitespace-nowrap"
+      <td scope="row" className="py-4 px-6 font-medium whitespace-nowrap">
+        {formatValue(value1) || ""}
+      </td>
+      {drillable ? (
+        <td
+          onClick={() =>
+            router.push({
+              pathname: infoPath,
+              query: {
+                id: value1,
+              },
+            })
+          }
+          className="py-4 px-6 text-[#FFEECC] hover:underline cursor-pointer"
         >
-          {value1 || ""}
-        </th>
-        <td className="py-4 px-6">{value2 || ""}</td>
-        <td className="py-4 px-6">{value3}</td>
-        {value4 ? <td className="py-4 px-6">{value4 || ""}</td> : null}
-        {value5 ? <td className="py-4 px-6">{value5 || ""}</td> : null}
-        <td className="py-4 px-6">
-          <Link href={editRoute || ""} legacyBehavior className="border border-white">
-            <a className="font-medium text-[#FFEECC] hover:underline cursor-pointer">Edit</a>
-          </Link>
+          {formatValue(value2) || ""}
         </td>
-        <td className="py-4 px-6">
-          <a
-            onClick={() => onDelete(id)}
-            className="font-medium text-[#FFEECC] hover:underline cursor-pointer"
-          >
-            Delete
+      ) : (
+        <td className="py-4 px-6">{formatValue(value2) || ""}</td>
+      )}
+      <td className="py-4 px-6">{formatValue(value3)}</td>
+      {value4 ? <td className="py-4 px-6">{formatValue(value4) || ""}</td> : null}
+      {value5 ? <td className="py-4 px-6">{formatValue(value5) || ""}</td> : null}
+      <td className="py-4 px-6">
+        <Link
+          href={editRoute || ""}
+          legacyBehavior
+          className="border border-white"
+        >
+          <a className="font-medium text-[#FFEECC] hover:underline cursor-pointer">
+            Edit
           </a>
-        </td>
-      </tr>
+        </Link>
+      </td>
+      <td className="py-4 px-6">
+        <a
+          onClick={() => onDelete(id)}
+          className="font-medium text-[#FFEECC] hover:underline cursor-pointer"
+        >
+          Delete
+        </a>
+      </td>
+    </tr>
     );
   }
 `,
@@ -323,8 +596,18 @@ export const Tile = {
   },
   fileName: "Tile.tsx",
 };
-export const MainLayout = {
-  contents: `import React, { ReactHTML } from "react";
+function getModelMenus(models: Model[]) {
+  return models
+    .map((model) => {
+      return `{ label: "${pluralize.plural(
+        model.name
+      )}", destination: "/${pluralize.plural(model.name).toLowerCase()}" }`;
+    })
+    .join(",");
+}
+export const MainLayout = (models: Model[]) => {
+  return {
+    contents: `import React, { ReactHTML } from "react";
   import SideMenu from "./SideMenu";
   
   export default function MainLayout({
@@ -333,13 +616,11 @@ export const MainLayout = {
     children: JSX.Element | JSX.Element[];
   }) {
     return (
-      <div className="bg-[#5B8B6C] w-full h-[100vh] flex items-center justify-center">
-        <div className="max-w-[75rem] flex items-start mt-[10rem]">
+      <div className="bg-[#5B8B6C] w-full flex items-center justify-center">
+        <div className="xl:max-w-[75rem] md:w-[75%] w-full flex items-start mt-[4rem] mb-10">
           <SideMenu
             menus={[
-              { label: "Students", destination: "/students" },
-              { label: "Grades", destination: "/grades" },
-              { label: "Supplementaries", destination: "/supplementaries" },
+              ${getModelMenus(models)}
             ]}
           />
           {children}
@@ -350,8 +631,9 @@ export const MainLayout = {
   
    
 `,
-  instance: "",
-  fileName: "MainLayout.tsx",
+    instance: "",
+    fileName: "MainLayout.tsx",
+  };
 };
 
 export const SideMenu = {
@@ -369,7 +651,7 @@ export const SideMenu = {
       }
     }, []);
     return (
-      <ul className="mt-[6rem] left-[8%] absolute">
+      <ul className="top-[15%] left-[8%] absolute">
         {menus.map(({ destination, label }, i) => (
           <li key={\`\${i}-\${label}\`}>
             <Link
@@ -391,13 +673,16 @@ export const SideMenu = {
   fileName: "SideMenu.tsx",
 };
 
-export const COMPONENT_LIST = [
+export const COMPONENT_LIST = (models: Model[]) => [
   Input,
   Table,
   TableHead,
   TableRow,
   Button,
   Tile,
-  MainLayout,
+  MainLayout(models),
   SideMenu,
+  Select,
+  DateTimePicker,
+  TextArea,
 ];

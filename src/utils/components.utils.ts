@@ -13,8 +13,11 @@ function getFieldTypeName(type: string, implementation: FieldImplementation) {
     case FIELD_TYPES.NUMBER:
       return FIELD_TYPE_MAPPING.NUMBER[implementation];
 
-    case FIELD_TYPES.STRING:
-      return FIELD_TYPE_MAPPING.STRING[implementation];
+    case FIELD_TYPES.TEXT:
+      return FIELD_TYPE_MAPPING.TEXT[implementation];
+      
+    case FIELD_TYPES.LONG_TEXT:
+      return FIELD_TYPE_MAPPING.TEXT[implementation];
   }
 }
 

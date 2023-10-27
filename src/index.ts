@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#!/usr/bin/env node
 
 import { CONFIG_FILE_NAME, PROJECT_COMMANDS } from "./constants";
 import Executor from "./executor";
@@ -71,17 +71,18 @@ function runProjectCommands(projectName: string, callBack: Function) {
   }
   runCommand(index, PROJECT_COMMANDS);
 }
-launchProcess();
 
-//This works great for me:
+const args = process.argv.slice(2);
 
-//dockerized version that uses docker compose
-//passport auth
-//one class that will handle next gen json validation
-//logging as processes happen
-//error handling eg. if unable to access DB
-//automatically run after finishing setup
-//add select to pick parent from child and update
-//add fields types. select and date.
-
-//use theme https://www.behance.net/gallery/18218871/Simply-Dashboard-Flat-design
+if (args[0] == "generate") {
+  launchProcess();
+} else if (args[0] == "ui") {
+  runShellCommand(
+    "git clone https://github.com/nicksanchezc137/json-generator.git && cd json-generator && npm install && npm run dev",
+    () => {
+      // runShellCommand("cd json-generator && npm install", () => {
+      //   runShellCommand("npm run dev", () => {});
+      // });
+    }
+  );
+}

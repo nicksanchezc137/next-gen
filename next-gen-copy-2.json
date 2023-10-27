@@ -1,0 +1,144 @@
+{
+  "projectName":"cicaz-fries2",
+  "db": {
+    "host": "localhost",
+    "user": "user",
+    "password": "password",
+    "database": "test-db"
+  },
+  "dropTables":true,
+  "models": [
+    {
+      "name": "Waiter",
+      "includeTimeStamps": true,
+      "belongsTo": ["Gender"],
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "required": true,
+          "visibleOnList": true
+        },
+        {
+          "name": "salary",
+          "type": "number",
+          "required": true,
+          "visibleOnList": true
+        },
+        {
+          "name": "Birthday",
+          "type": "date_time",
+          "required": true,
+          "visibleOnList": true
+        }
+      ],
+      "operations": { 
+        "CREATE": true,
+        "READ": true,
+        "UPDATE": true,
+        "DELETE": true
+      }
+    },
+    {
+      "name": "Table",
+      "includeTimeStamps": true,
+      "belongsTo": [],
+      "fields": [
+        {
+          "name": "number",
+          "type": "number",
+          "required": true,
+          "visibleOnList": true
+        },
+        {
+          "name": "size",
+          "type": "number",
+          "required": true,
+          "visibleOnList": true
+        }
+      ],
+      "operations": {
+        "CREATE": true,
+        "READ": true,
+        "UPDATE": true,
+        "DELETE": true
+      }
+    },
+    {
+      "name": "Meal",
+      "includeTimeStamps": true,
+      "belongsTo": [],
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "required": true,
+          "visibleOnList": true
+        },
+        {
+          "name": "price",
+          "type": "number",
+          "required": true,
+          "visibleOnList": true
+        },
+        {
+          "name": "description",
+          "type": "long_text",
+          "required": true,
+          "visibleOnList": true
+        }
+      ],
+      "operations": {
+        "CREATE": true,
+        "READ": true,
+        "UPDATE": true,
+        "DELETE": true
+      }
+    },
+    {
+      "name": "Gender",
+      "includeTimeStamps": true,
+      "belongsTo": [],
+      "fields": [
+        {
+          "name": "name",
+          "type": "text",
+          "required": true,
+          "visibleOnList": true
+        }
+      ],
+      "operations": {
+        "CREATE": true,
+        "READ": true,
+        "UPDATE": true,
+        "DELETE": true
+      }
+    },
+    {
+      "name": "Order",
+      "includeTimeStamps": true,
+      "belongsTo": ["Table","Waiter"],
+      "fields": [
+        {
+          "name": "number",
+          "type": "number",
+          "required": true,
+          "visibleOnList": true
+        },
+        {
+          "name": "bill",
+          "type": "number",
+          "required": true,
+          "visibleOnList": true
+        }
+      ],
+      "operations": {
+        "CREATE": true,
+        "READ": true,
+        "UPDATE": true,
+        "DELETE": true
+      }
+    }
+
+  ]
+}

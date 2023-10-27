@@ -35,25 +35,50 @@ export const HANDLE_REQUEST = () => {
 export const GENERAL_UTILS = () => {
   return {
     contents: `
-    export function formatDate(date: Date) {
-      return (
-        [
-          date.getFullYear(),
-          padTo2Digits(date.getMonth() + 1),
-          padTo2Digits(date.getDate()),
-        ].join("-") +
-        " " +
-        [
-          padTo2Digits(date.getHours()),
-          padTo2Digits(date.getMinutes()),
-          padTo2Digits(date.getSeconds()),
-        ].join(":")
-      );
-    }
-    function padTo2Digits(num: number) {
-      return num.toString().padStart(2, "0");
-    }
-    
+    import moment from "moment";
+export function parseDate(date: Date) {
+  return (
+    [
+      date.getFullYear(),
+      padTo2Digits(date.getMonth() + 1),
+      padTo2Digits(date.getDate()),
+    ].join("-") +
+    " " +
+    [
+      padTo2Digits(date.getHours()),
+      padTo2Digits(date.getMinutes()),
+      padTo2Digits(date.getSeconds()),
+    ].join(":")
+  );
+}
+function padTo2Digits(num: number) {
+  return num.toString().padStart(2, "0");
+}
+export function isDateTime(value: string | number) {
+  var formats = [moment.ISO_8601];
+  return (
+    value.toString().includes("Z") && moment(value, formats, true).isValid()
+  );
+}
+export function formatDate(dateTimeString: string | number) {
+  return moment(dateTimeString).format("DD/MM/YY hh:mm:ss");
+}
+export function formatServerDate(dateTimeString: string | number) {
+  return moment(dateTimeString).format("DD/MM/YYYY hh:mm:ss");
+}
+export function getCurrentDateTime() {
+  const currentDateTime = new Date();
+  return {
+    date: moment(currentDateTime).format("YYYY-MM-DD"),
+    time: moment(currentDateTime).format("hh:mm:ss"),
+  };
+}
+export function convertToDateTimeInputObject(dateTime:string) {
+  return {
+    date: moment(dateTime).format("YYYY-MM-DD"),
+    time: moment(dateTime).format("hh:mm:ss"),
+  };
+}
     `,
     fileName: "general.utils.ts",
     path: "path",

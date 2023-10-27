@@ -17,10 +17,10 @@ export default class Executor {
     this.mainConfig = mainConfig;
   }
 
-  execute() {
+ async execute() {
     this.generateFiles();
   }
-  generateFiles() {
+   generateFiles() {
     const uiGenerator = new UIGenerator(this.mainConfig.models);
     this.generatePages(uiGenerator.getAllPagesMarkUp());
 
@@ -34,7 +34,7 @@ export default class Executor {
     this.generateApiFiles(apiGenerator.generateAPIs());
 
     const componentGenerator = new ComponentGenerator();
-    this.generateComponentFiles(componentGenerator.generateComponents());
+     this.generateComponentFiles(componentGenerator.generateComponents(this.mainConfig.models));
 
     const utilsGenerator = new UtilsGenerator();
     this.generateUtilFiles(utilsGenerator.generateUtilsCode());

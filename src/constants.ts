@@ -10,16 +10,20 @@ export const OPS = {
 };
 
 export const FIELD_TYPES = {
-  STRING: "STRING",
+  TEXT: "TEXT",
+  LONG_TEXT: "LONG_TEXT",
   NUMBER: "NUMBER",
   DOUBLE: "DOUBLE",
   BOOLEAN: "BOOLEAN",
+  DATE_TIME:"DATE_TIME"
 };
 export const FIELD_TYPE_MAPPING :any= {
-  STRING: { ui: "text", db: "VARCHAR(255)" },
+  TEXT: { ui: "text", db: "VARCHAR(255)" },
+  LONG_TEXT: { ui: "text", db: "VARCHAR(3000)" },
   NUMBER: { ui: "number", db: "INT" },
   DOUBLE: { ui: "number", db: "DOUBLE" },
   BOOLEAN: { ui: "checkbox", db: "TINYINT" },
+  DATE_TIME:{ui:"",db:"TIMESTAMP"}
 };
 
 export const FIELD_IMPLEMENTATION_TYPES: FieldImplementationConstant = {
@@ -33,4 +37,4 @@ export const PAGE_TYPE = {
   CREATE: "CREATE",
 };
 
-export const PROJECT_COMMANDS = ["npm i mysql", "npm install -D tailwindcss postcss autoprefixer","npx tailwindcss init -p", "npm i pluralize","npm i @fortawesome/react-fontawesome","npm i react-table"]
+export const PROJECT_COMMANDS = ["npm i mysql", "npm install -D tailwindcss postcss autoprefixer","npx tailwindcss init -p", "npm i pluralize","npm i @fortawesome/react-fontawesome","npm i moment"]

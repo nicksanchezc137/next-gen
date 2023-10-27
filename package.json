@@ -1,15 +1,15 @@
 {
-  "name": "next-gen",
+  "name": "next-gen-code-generator",
   "version": "1.0.0",
   "description": "FastTrack your projects with a powerful CLI tool that auto-generates the most important code for you.",
   "main": "./bin/index.js",
   "bin": {
-    "genie": "./bin/index.js"
+    "next-gen": "./bin/index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "nodemon --watch 'src/**/*.ts' --ignore src/utils  --exec 'ts-node' src/index.ts",
-    "build": "rimraf ./bin && tsc",
+    "start:dev": "nodemon --watch 'src/**/*.ts' --ignore src/utils  --exec 'ts-node' src/index.ts generate",
+    "build": "rm -rf ./bin && tsc && chmod +x bin/index.js",
     "start:prod": "npm run build && node bin/index.js",
     "local": "npm run build && npm i -g . && next-gen",
     "refresh": "sudo rm -rf node_modules. && npm i"

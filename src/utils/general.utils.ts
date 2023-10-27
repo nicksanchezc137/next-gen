@@ -12,4 +12,17 @@ function getModelChildrenFromModelParent(
     .filter((model) => model.belongsTo.includes(parentModelName))
     .map((model) => model.name);
 }
-export { capitalizeFirstLetter, getModelChildrenFromModelParent };
+function getChildModels(models: Model[], modelName: string): string[] {
+  let childModels: string[] = [];
+  models.forEach((model) => {
+    if (model.belongsTo.includes(modelName)) {
+      childModels.push(model.name);
+    }
+  });
+  return childModels;
+}
+export {
+  capitalizeFirstLetter,
+  getModelChildrenFromModelParent,
+  getChildModels,
+};

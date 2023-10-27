@@ -75,6 +75,7 @@ ${generateBelongToControllerImports(modelChildrenNames)}
 
 type GenericObject = { [key: string]: any };
 const controllerName = "${pluralize.plural(model.name).toLowerCase()}";
+const ID_CHECK = "_id";
 
 export default function handler(
   req: NextApiRequest,
@@ -90,7 +91,7 @@ export default function handler(
       ${
         model.operations.CREATE
           ? `${modelNameLoweCase}Controller.create(req, res);`
-          : "TODO:Implement custom post"
+          : "//TODO:Implement custom post"
       }
       break;
 
@@ -100,14 +101,20 @@ export default function handler(
         ${
           model.operations.READ
             ? `${modelNameLoweCase}Controller.findOne(req, res);`
-            : "TODO:Implement custom get when id param passed"
+            : "//TODO:Implement custom get when id param passed"
         }
+        return;
+      }
+      let queryObjString = JSON.stringify(req.query);
+      if (queryObjString.includes(ID_CHECK)) {
+        const modelName = Object.keys(req.query).find((key)=>key.includes(ID_CHECK))?.split(ID_CHECK)[0];
+        ${modelNameLoweCase}Controller.findAllBelongTo(req, res, modelName || "");
         return;
       }
       ${
         model.operations.READ
           ? `${modelNameLoweCase}Controller.findAll(req, res);`
-          : "TODO:Implement custom get"
+          : "//TODO:Implement custom get"
       }
       break;
 
@@ -115,7 +122,7 @@ export default function handler(
       ${
         model.operations.UPDATE
           ? `${modelNameLoweCase}Controller.update(req, res);`
-          : "TODO:Implement custom put"
+          : "//TODO:Implement custom put"
       }
       break;
 
@@ -123,7 +130,7 @@ export default function handler(
       ${
         model.operations.DELETE
           ? `${modelNameLoweCase}Controller.delete(req, res);`
-          : "TODO:Implement custom delete"
+          : "//TODO:Implement custom delete"
       }
       break;
 
@@ -143,7 +150,7 @@ export const CONTROLLER_CLASS = (
   let fileName = `${pluralize.plural(modelName).toLowerCase()}.controller.ts`;
   return {
     contents: `import { NextApiRequest, NextApiResponse } from "next";
-    import { formatDate } from "../../../utils/general.utils";
+    import { parseDate } from "../../../utils/general.utils";
     import { ${capitalizeFirstLetter(
       modelName
     )}Model } from "../models/${pluralize
@@ -239,7 +246,7 @@ export const DELETE_CONTROLLER_METHOD = (modelName: string) => {
         const id = req.query.id || "0";
         const ${lowerCaseModelName} = await ${lowerCaseModelName}Model.findById(Number(id));
         ${lowerCaseModelName}Model
-          .update(Number(id), { ...${lowerCaseModelName}, deleted_at: formatDate(new Date())})
+          .update(Number(id), { ...${lowerCaseModelName}, deleted_at: parseDate(new Date())})
           .then((resp) => res.status(200).send(resp))
           .catch((err) => {
             res.status(422).send({
@@ -300,7 +307,7 @@ export const FIND_ALL_THAT_BELONG_TO_CONTROLLER_METHOD = (
         const ${lowerCaseModelName}Model = new ${capitalizeFirstLetter(
     lowerCaseModelName
   )}Model();
-        const id = req.query.id || "0";
+        const id = req.query[\`\${parentModelName}_id\`] || 0;
         ${lowerCaseModelName}Model
           .findByAllThatBelongTo(Number(id),parentModelName)
           .then((${pluralize.plural(
@@ -335,20 +342,40 @@ export const CREATE_MODEL_METHOD = (modelName: string) => {
       }`;
 };
 
-function getUpdateQuery(fields: Field[], modelName: string) {
+function getUpdateQuery(
+  fields: Field[],
+  modelName: string,
+  parentModelKeyNames: string[]
+) {
+  let parentModelSubQuery =
+    parentModelKeyNames.map((keyName) => `, ${keyName} = ?`).join("") || "";
   let updateQuery = "SET ";
   fields.forEach((field) => {
     updateQuery += ` ${field.name} = ?,`;
   });
-  updateQuery += ` deleted_at = ? WHERE id = ?",\n[`;
+  updateQuery += ` deleted_at = ? ${parentModelSubQuery} WHERE id = ?",\n[`;
   fields.forEach((field) => {
     updateQuery += `${modelName.toLowerCase()}.${field.name},`;
   });
-  return updateQuery + `${modelName.toLowerCase()}.deleted_at, id],`;
+  const parentModelIds = parentModelKeyNames
+    .map((parentModelId) => `${modelName.toLowerCase()}.${parentModelId}`)
+    .join(","); //TODO: should definitely find a better name for the variables in this function
+  return (
+    updateQuery +
+    `${modelName.toLowerCase()}.deleted_at, ${
+      parentModelIds ? parentModelIds + "," : ""//TODO:needs some cleanup
+    } id],`
+  );
 }
 
-export const UPDATE_MODEL_METHOD = (fields: Field[], modelName: string) => {
+export const UPDATE_MODEL_METHOD = (
+  fields: Field[],
+  modelName: string,
+  parentModels?: string[]
+) => {
   let lowerCaseModelName = modelName.toLowerCase();
+  let parentModelKeyNames =
+    parentModels?.map((modelName) => `${modelName.toLowerCase()}_id`) || [];
   return `
     update(id: number, ${lowerCaseModelName}: GenericObject): Promise<GenericObject> {
         return new Promise((resolve, reject) => {
@@ -360,7 +387,8 @@ export const UPDATE_MODEL_METHOD = (fields: Field[], modelName: string) => {
           sql.query(
             "UPDATE ${pluralize.plural(lowerCaseModelName)}  ${getUpdateQuery(
     fields,
-    modelName
+    modelName,
+    parentModelKeyNames
   )}
             (err: GenericObject, res: GenericObject) => {
               if (err) {

@@ -6,26 +6,46 @@ var pluralize = require("pluralize");
 const CREATE_PAGE_TEMPLATE = (
   fieldsMarkUp: string,
   pageType: string,
-  modelName: string
+  modelName: string,
+  parentModels?: string[]
 ) => {
   const componentName = "create";
   const controllerName = pluralize.plural(modelName).toLowerCase();
+  const parentModelMarkUp =
+    parentModels && parentModels?.length
+      ? `["${parentModels
+          ?.map(
+            (parentModel) => `${pluralize.plural(parentModel).toLowerCase()}`
+          )
+          .join('","')}"]`
+      : "[]";
   return {
     fileName: `${componentName}.tsx`,
     contents: `
     import type { NextPage } from "next";
     import { useRouter } from "next/router";
-    import { ChangeEvent, FormEvent, useState } from "react";
+    import { ChangeEvent, FormEvent, useState, useEffect } from "react";
     import Input from "../../components/Input";
     import { handleRequest } from "../../utils/api.utils";
     import MainLayout from "../../components/MainLayout";
     import Button from "../../components/Button";
+    import Select from "../../components/Select";
+    import DateTimePicker from "../../components/DateTimePicker";
+    import { getCurrentDateTime } from "../../utils/general.utils";
+    import Textarea from "../../components/TextArea";
+    var pluralize = require("pluralize"); 
     type GenericObject = { [key: string]: any };
+    const PARENT_MODELS:string[] = ${parentModelMarkUp};
     const ${componentName}: NextPage = () => {
       const router = useRouter();
       const [formData, setFormData] = useState<GenericObject>({});
+      const [parentModelOptions, setParentModelOptions] = useState<GenericObject>(
+        {}
+      );
     
-      const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+      const handleChange = (
+        event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
+      ) => {
         setFormData({ ...formData, [event.target.name]: event.target.value });
       };
       function onSubmit(formEvent: FormEvent) {
@@ -36,6 +56,37 @@ const CREATE_PAGE_TEMPLATE = (
         })
         .catch((err) => alert(err));
       }
+      useEffect(() => {
+        Promise.all(
+          PARENT_MODELS.map((model) => fetchParentModelOptions(model))
+        ).then((resp) => {
+          let modelOptionsObj = {}
+          resp.forEach((modelOptions: any, i) => {
+            modelOptionsObj = {
+              ...modelOptionsObj,
+              [PARENT_MODELS[i]]: modelOptions?.map(
+                ({ id, name }: { id: number; name: string }) => {
+                  return {
+                    value: id,
+                    label: name,
+                  };
+                }
+              ),
+            }
+            setParentModelOptions(modelOptionsObj);
+          });
+        });
+      }, []);
+    
+      function fetchParentModelOptions(parentModelName: string) {
+        return new Promise((resolve, reject) => {
+          handleRequest(parentModelName, "GET", formData)
+            .then((resp) => {
+              resolve(resp);
+            })
+            .catch((err) => reject(err));
+        });
+      }
     
       return (
         <MainLayout>
@@ -45,6 +96,24 @@ const CREATE_PAGE_TEMPLATE = (
           className="w-[30rem] flex items-center flex-col px-4 text-black"
         >
             <h1 className="font-bold text-white text-[2.5rem]">Create ${modelName}</h1>
+
+          {PARENT_MODELS.map((parentModel, i) => {
+            const selectKey = \`\${pluralize.singular(parentModel)}_id\`;
+
+            return (
+              <Select
+                key={\`\${parentModel}-\${i}\`}
+                labelClassName="font-bold"
+                selectContainerClassName="w-full mt-10"
+                selectClassName="px-4 py-2 w-full text-[1.2rem]"
+                label={pluralize.singular(parentModel)}
+                selectValue={formData[selectKey]}
+                onSelectChange={handleChange}
+                selectName={selectKey}
+                options={parentModelOptions[parentModel] || []}
+              />
+            );
+          })}
     
              ${fieldsMarkUp}
     
@@ -69,10 +138,19 @@ const CREATE_PAGE_TEMPLATE = (
 const UPDATE_PAGE_TEMPLATE = (
   fieldsMarkUp: string,
   pageType: string,
-  modelName: string
+  modelName: string,
+  parentModels?: string[]
 ) => {
   const componentName = "edit";
   const controllerName = pluralize.plural(modelName).toLowerCase();
+  const parentModelMarkUp =
+    parentModels && parentModels?.length
+      ? `["${parentModels
+          ?.map(
+            (parentModel) => `${pluralize.plural(parentModel).toLowerCase()}`
+          )
+          .join('","')}"]`
+      : "[]";
   return {
     fileName: `${componentName}.tsx`,
     contents: `
@@ -83,12 +161,22 @@ const UPDATE_PAGE_TEMPLATE = (
     import { handleRequest } from "../../utils/api.utils";
     import MainLayout from "../../components/MainLayout";
     import Button from "../../components/Button";
+    import Select from "../../components/Select";
+    import DateTimePicker from "../../components/DateTimePicker";
+    import { getCurrentDateTime } from "../../utils/general.utils";
+    import Textarea from "../../components/TextArea";
+    var pluralize = require("pluralize");
 
     type GenericObject = { [key: string]: any };
+    const PARENT_MODELS:string[] = ${parentModelMarkUp};
+
     const ${componentName}: NextPage = () => {
       const router = useRouter();
       const { id } = router.query;
       const [formData, setFormData] = useState<GenericObject>({});
+      const [parentModelOptions, setParentModelOptions] = useState<GenericObject>(
+        {}
+      );
       useEffect(() => {
         if (router.isReady) {
           handleRequest(\`${controllerName}?id=\${id}\`, "GET", {}).then((resp: any) => {
@@ -96,9 +184,39 @@ const UPDATE_PAGE_TEMPLATE = (
           });
         }
       }, [router.isReady]);
+      useEffect(() => {
+        Promise.all(
+          PARENT_MODELS.map((model) => fetchParentModelOptions(model))
+        ).then((resp) => {
+          let modelOptionsObj = {}
+          resp.forEach((modelOptions: any, i) => {
+            modelOptionsObj = {
+              ...modelOptionsObj,
+              [PARENT_MODELS[i]]: modelOptions?.map(
+                ({ id, name }: { id: number; name: string }) => {
+                  return {
+                    value: id,
+                    label: name,
+                  };
+                }
+              ),
+            }
+            setParentModelOptions(modelOptionsObj);
+          });
+        });
+      }, []);
+      function fetchParentModelOptions(parentModelName: string) {
+        return new Promise((resolve, reject) => {
+          handleRequest(parentModelName, "GET", formData)
+            .then((resp) => {
+              resolve(resp);
+            })
+            .catch((err) => reject(err));
+        });
+      }
     
-      const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [event.target.name]: event.target.value });
+     const handleChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
+       setFormData({ ...formData, [event.target.name]: event.target.value });
       };
       function onSubmit(formEvent: FormEvent) {
         formEvent.preventDefault();
@@ -117,6 +235,24 @@ const UPDATE_PAGE_TEMPLATE = (
             className="w-[30rem] flex items-start flex-col px-4 text-black"
           >
           <h1 className="text-white text-[2.5rem] font-bold">Edit ${modelName}</h1>
+
+          {PARENT_MODELS.map((parentModel, i) => {
+            const selectKey = \`\${pluralize.singular(parentModel)}_id\`;
+            return (
+              <Select
+                key={\`\${parentModel}-\${i}\`}
+                labelClassName="font-bold"
+                selectContainerClassName="w-full mt-10"
+                selectClassName="px-4 py-2 w-full text-[1.2rem]"
+                label={pluralize.singular(parentModel)}
+                onSelectChange={handleChange}
+                selectValue={formData[selectKey]}
+                selectName={selectKey}
+                options={parentModelOptions[parentModel] || []}
+              />
+            );
+          })}
+
     
              ${fieldsMarkUp}
     
@@ -140,7 +276,7 @@ const UPDATE_PAGE_TEMPLATE = (
   };
 };
 
-const READ_PAGE_TEMPLATE = (modelName: string) => {
+const READ_PAGE_TEMPLATE = (modelName: string, childModels?: string[]) => {
   const componentName = "Show";
   const controllerName = pluralize.plural(modelName).toLowerCase();
   return {
@@ -173,7 +309,10 @@ const READ_PAGE_TEMPLATE = (modelName: string) => {
           <Button caption="Add ${modelName}" onButtonClick={()=>router.push("/${controllerName}/create")}/>
         </div>
         <div className="overflow-x-auto relative sm:rounded-lg w-full">
-        ${Table.instance(modelName)}
+        ${Table.instance(
+          modelName,
+          childModels != undefined && childModels?.length > 0
+        )}
         </div>
         </div>
 
@@ -182,6 +321,85 @@ const READ_PAGE_TEMPLATE = (modelName: string) => {
     };
     
     export default ${componentName};
+    `,
+  };
+};
+function childMenus(childModels: string[]) {
+  return childModels.map((childModel) => {
+    let childMenuName = pluralize.plural(childModel).toLocaleLowerCase();
+    return `   <h1
+    onClick={() => setActiveModel("${childMenuName}")}
+    className={\`cursor-pointer text-[2.5rem] font-bold \${
+      activeModel == "${childMenuName}" ? "" : "text-[#A3BEAE]"
+    }\`}
+  >
+    ${capitalizeFirstLetter(childMenuName)}
+  </h1>`;
+  });
+}
+const INFO_PAGE_TEMPLATE = (modelName: string, childModels: string[]) => {
+  const defaultChildModel = pluralize
+    .plural(childModels.length ? childModels[0] : "")
+    .toLowerCase();
+
+  return {
+    fileName: "info.tsx",
+    contents: `import type { NextPage } from "next";
+    import { useEffect, useState } from "react";
+    import { useRouter } from "next/router";
+    import Table from "../../components/Table";
+    import { handleRequest } from "../../utils/api.utils";
+    import MainLayout from "../../components/MainLayout";
+    import Button from "../../components/Button";
+    var pluralize = require("pluralize");
+    type GenericObject = { [key: string]: any };
+    const Info: NextPage = () => {
+      const router = useRouter();
+      const [data, setData] = useState<GenericObject[]>([]);
+      const [activeModel, setActiveModel] = useState("${defaultChildModel}");
+      const [parentModel, setParentModel] = useState("");
+    
+      useEffect(() => {
+        if (router.isReady) {
+          const parentModel = router.pathname.split("/")[1];
+          setParentModel(pluralize.singular(parentModel));
+        }
+      }, [router.isReady]);
+    
+      useEffect(() => {
+        if (parentModel) {
+          handleRequest(
+            \`\${activeModel}?\${parentModel}_id=\${router.query.id}\`,
+            "GET",
+            {}
+          ).then((data: any) => {
+            setData(data);
+          });
+        }
+      }, [activeModel, parentModel]);
+    
+      return (
+        <MainLayout>
+          <div className="w-full min-h-[100vh] ml-[10rem] flex flex-col items-start justify-start p-4 mt-[1.5rem]">
+            <div className="w-full flex items-start justify-between text-[#FFEECC]">
+              ${childMenus(childModels)}
+            </div>
+            <div className="w-full flex justify-end">
+            <Button
+                caption={\`Add \${pluralize.singular(activeModel)}\`}
+                onButtonClick={() => router.push(\`/\${activeModel}/create\`)}
+              />
+            </div>
+          
+            <div className="overflow-x-auto relative sm:rounded-lg w-full">
+              <Table values={data} apiController={activeModel} />
+            </div>
+          </div>
+        </MainLayout>
+      );
+    };
+    
+    export default Info;
     `,
   };
 };
@@ -227,4 +445,5 @@ export {
   READ_PAGE_TEMPLATE,
   MAIN_APP,
   HOME_PAGE,
+  INFO_PAGE_TEMPLATE,
 };

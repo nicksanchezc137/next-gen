@@ -1,93 +1,87 @@
 {
-  "projectName":"epren-academy",
+  "projectName": "cars-info",
   "db": {
     "host": "localhost",
     "user": "user",
     "password": "password",
     "database": "test-db"
   },
-  "dropTables":true,
+  "dropTables": true,
   "models": [
     {
-      "name": "Student",
-      "includeTimeStamps": true,
-      "belongsTo": [],
-      "fields": [
-        {
-          "name": "name",
-          "type": "string",
-          "required": true,
-          "visibleOnList": true
-        }
-      ],
+      "name": "cars",
       "operations": {
         "CREATE": true,
         "READ": true,
         "UPDATE": true,
         "DELETE": true
-      }
+      },
+      "fields": [
+        {
+          "name": "price",
+          "required": true,
+          "visibleOnList": true,
+          "type": "number"
+        },
+        {
+          "name": "year",
+          "required": true,
+          "visibleOnList": true,
+          "type": "number"
+        }
+      ],
+      "includeTimeStamps": true,
+      "belongsTo": ["makes", "models"]
     },
     {
-      "name": "Supplementary",
-      "includeTimeStamps": true,
-      "belongsTo": ["Student"],
-      "fields": [
-        {
-          "name": "name",
-          "type": "string",
-          "required": true,
-          "visibleOnList": true
-        },
-        {
-          "name": "grade",
-          "type": "number",
-          "required": true,
-          "visibleOnList": true
-        }
-      ],
+      "name": "makes",
       "operations": {
         "CREATE": true,
         "READ": true,
         "UPDATE": true,
         "DELETE": true
-      }
+      },
+      "fields": [
+        {
+          "name": "name",
+          "required": true,
+          "visibleOnList": true,
+          "type": "text"
+        },
+        {
+          "name": "desc",
+          "required": true,
+          "visibleOnList": true,
+          "type": "long_text"
+        }
+      ],
+      "includeTimeStamps": true,
+      "belongsTo": []
     },
     {
-      "name": "Grade",
-      "includeTimeStamps": true,
-      "belongsTo": ["Student"],
-      "fields": [
-        {
-          "name": "name",
-          "type": "string",
-          "required": true,
-          "visibleOnList": true
-        },
-        {
-          "name": "deadline",
-          "type": "number",
-          "required": true,
-          "visibleOnList": true
-        },
-        {
-          "name": "description",
-          "type": "string",
-          "required": true,
-          "visibleOnList": true
-        },
-        {
-          "name": "difficulty",
-          "type": "string",
-          "required": true,
-          "visibleOnList": true
-        }
-      ],
+      "name": "models",
       "operations": {
         "CREATE": true,
         "READ": true,
         "UPDATE": true,
         "DELETE": true
-      }
+      },
+      "fields": [
+        {
+          "name": "name",
+          "required": true,
+          "visibleOnList": true,
+          "type": "text"
+        },
+        {
+          "name": "desc",
+          "required": true,
+          "visibleOnList": true,
+          "type": "long_text"
+        }
+      ],
+      "includeTimeStamps": true,
+      "belongsTo": []
     }
   ]
 }
