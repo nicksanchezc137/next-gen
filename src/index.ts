@@ -20,7 +20,9 @@ console.log(
 async function launchProcess() {
   const config = await readFile(CONFIG_FILE_NAME);
   runShellCommand("npm i create-next-app@13.0.2 -g", () => {
+   
     generateProject(config?.projectName, () => {
+      console.log("Next step!!!")
       runProjectCommands(config?.projectName, () => {
         generateProjectFiles(config);
         runShellCommand(`cd ${config?.projectName} && npm run dev`, () => {
@@ -41,9 +43,10 @@ function generateProjectFiles(config: MainConfig) {
 async function generateProject(projectName: string, callBack: Function) {
   console.log(`Generating Next JS project in folder ${projectName}...`);
   runShellCommand(
-    `create-next-app ${projectName} --eslint --ts --use-npm`,
+    `create-next-app ${projectName} --eslint --ts --use-npm -S && cd ${projectName} && npm i next@13.1.1`,//TODO: Next JS automatically generates version 14 of Next JS. We need to specify it to 13.1.1 to avoid incompatibility with code.
     (error: string, stderr: string, stdout: string) => {
-      if (!error && !stderr) {
+      console.log(error, stderr)
+      if (!error) {
         console.log("Next JS project created successfully ✔️");
         callBack();
       }

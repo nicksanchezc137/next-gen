@@ -375,7 +375,7 @@ export const UPDATE_MODEL_METHOD = (
 ) => {
   let lowerCaseModelName = modelName.toLowerCase();
   let parentModelKeyNames =
-    parentModels?.map((modelName) => `${modelName.toLowerCase()}_id`) || [];
+    parentModels?.map((modelName) => `${pluralize.singular(modelName.toLowerCase())}_id`) || [];
   return `
     update(id: number, ${lowerCaseModelName}: GenericObject): Promise<GenericObject> {
         return new Promise((resolve, reject) => {

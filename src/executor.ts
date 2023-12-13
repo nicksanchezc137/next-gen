@@ -1,6 +1,7 @@
 import { APIGenerator } from "./generators/api-generator";
 import { ComponentGenerator } from "./generators/component-generator";
 import { ConfigGenerator } from "./generators/config-generator";
+import { ConstantsCodeGenerator } from "./generators/constants-generator";
 import { SchemaGenerator } from "./generators/schema-generator";
 import { TypesGenerator } from "./generators/types-generator";
 import { UIGenerator } from "./generators/ui-generator";
@@ -38,6 +39,9 @@ export default class Executor {
 
     const utilsGenerator = new UtilsGenerator();
     this.generateUtilFiles(utilsGenerator.generateUtilsCode());
+
+    const constantsGenerator = new ConstantsCodeGenerator();
+    this.generateConstantsFiles(constantsGenerator.getConstantsCode());
 
     const typesGenerator = new TypesGenerator();
     this.generateTypeFiles(typesGenerator.generateTypesCode());
@@ -104,12 +108,23 @@ export default class Executor {
 
   async generateUtilFiles(utilFiles: FileToGenerate[]) {
     for (let file of utilFiles) {
-      const { contents, fileName, path } = file;
+      const { contents, fileName, path } = file;//TODO:pass path argument instead of hard coding
       await writeFile(
         contents,
         fileName,
         this.mainConfig.projectName,
         "utils/"
+      );
+    }
+  }
+  async generateConstantsFiles(constantsFiles: FileToGenerate[]) {
+    for (let file of constantsFiles) {
+      const { contents, fileName, path } = file;
+      await writeFile(
+        contents,
+        fileName,
+        this.mainConfig.projectName,
+        "constants/"
       );
     }
   }

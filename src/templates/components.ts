@@ -267,12 +267,22 @@ export const TextArea = {
   fileName: "TextArea.tsx",
 };
 
+//TODO:add 2 props to headers ie isVisibleOnList and idIdentifier
+//TODO: add 2 props to rows ie isVisibleOnList and idIdentifier
+
 export const Table = {
   contents: `import { useRouter } from "next/router";
   import React, { useEffect, useState } from "react";
   import { handleRequest } from "../utils/api.utils";
   import TableHead from "./TableHead";
   import TableRow from "./TableRow";
+  import {
+    getFieldProperties,
+    getHeaderProperties,
+    getModel,
+  } from "../utils/general.utils";
+  import { TIME_STAMP_FIELDS } from "../constants/general.constants";
+  import { Field } from "../types/general.types";
   type GenericObject = { [key: string]: any };
   const PAGE_LENGTH = 10;
   export default function Table({
@@ -294,26 +304,40 @@ export const Table = {
       let currentRows = values.slice(start, end);
       setRows(currentRows);
     }, [page, values]);
-    const headProps = () => {
-      if (!values[0]) {
-        return null;
+    
+    const headerProps = () => {
+      if (values.length) {
+        let headers: string[] = [];
+        rowProps(values[0])
+          .filter((field: Field) => field.visibleOnList)
+          .forEach((field: Field) => {
+            headers.push(field.name || "");
+          });
+        return headers;
+      } else {
+        //We don't have records at this point so we might as well return the headers from the config file
+        return getHeaderProperties(apiController) || [];
       }
-      let tableHeadProps: GenericObject = {};
-      Object.keys(values[0]).forEach((key, i) => {
-        tableHeadProps[\`value\${i + 1}\`] = key;
-      });
-      return tableHeadProps;
     };
   
     const rowProps = (row: GenericObject) => {
       if (!row) {
         return null;
       }
-      let tableRowProps: GenericObject = {};
+      let enhancedFields: any = [];
       Object.keys(row).forEach((key, i) => {
-        tableRowProps[\`value\${i + 1}\`] = row[key];
+        const fieldInfo = getFieldProperties(key, apiController);
+        console.log(key,fieldInfo )
+        enhancedFields.push({
+          name: key,
+          value: row[key],
+          isIdentifier: fieldInfo?.isIdentifier,
+          visibleOnList:TIME_STAMP_FIELDS.includes(fieldInfo?.name  || "")? //TODO: merge label and name
+            getModel(apiController)?.includeTimeStamps:fieldInfo?.visibleOnList,
+          required: fieldInfo?.required,
+        });
       });
-      return tableRowProps;
+      return enhancedFields;
     };
     function deleteRecord(id: number) {
       handleRequest(\`\${apiController}?id=\${id}\`, "DELETE", {}).then((user: any) =>
@@ -335,7 +359,7 @@ export const Table = {
     return (
       <div>
       <table className="w-full text-sm text-left text-gray-500">
-        <TableHead {...headProps()} />
+      <TableHead headers={headerProps()} />
         <tbody>
         {rows?.map((value: GenericObject) => (
             <TableRow
@@ -343,7 +367,7 @@ export const Table = {
               apiController={apiController}
               onDelete={() => deleteRecord(value.id)}
               editRoute={\`/\${apiController}/edit?id=\${value.id}\`}
-              {...rowProps(value)}
+              fields={rowProps(value)}
               id={value.id}
               key={value.id}
             />
@@ -382,42 +406,17 @@ export const Table = {
 
 export const TableHead = {
   contents: `import React from "react";
-
-  export default function TableHead({
-    value1,
-    value2,
-    value3,
-    value4,
-    value5,
-  }: {
-    value1?: string | number;
-    value2?: string | number;
-    value3?: string | number;
-    value4?: string | number;
-    value5?: string | number;
-  }) {
+  export default function TableHead({ headers }: { headers: string[] }) {
     return (
       <thead className="text-xs text-white uppercase">
         <tr>
-          <th scope="col" className="py-3 px-6">
-            {value1 || ""}
-          </th>
-          <th scope="col" className="py-3 px-6">
-            {value2 || ""}
-          </th>
-          <th scope="col" className="py-3 px-6">
-            {value3 || ""}
-          </th>
-          {value4 ? (
-            <th scope="col" className="py-3 px-6">
-              {value4}
-            </th>
-          ) : null}
-          {value5 ? (
-            <th scope="col" className="py-3 px-6">
-              {value5}
-            </th>
-          ) : null}
+          {headers
+            .map((name) => (
+              <th scope="col" className="py-3 px-6">
+                {name || ""}
+              </th>
+            ))}
+  
           <th scope="col" className="py-3 px-6">
             Action
           </th>
@@ -427,7 +426,7 @@ export const TableHead = {
         </tr>
       </thead>
     );
-  }  
+  }
 `,
   instance: () => {
     return ``;
@@ -440,87 +439,81 @@ export const TableRow = {
   import { useRouter } from "next/router";
   import React from "react";
   import { formatDate, isDateTime } from "../utils/general.utils";
-
+  import { Field } from "../types/general.types";
   
   export default function TableRow({
     id,
-    value1,
-    value2,
-    value3,
-    value4,
-    value5,
+    fields,
     editRoute,
     onDelete,
     drillable,
     apiController,
   }: {
     id: number;
-    value1?: string | number;
-    value2?: string | number;
-    value3?: string | number;
-    value4?: string | number;
-    value5?: string | number;
+    fields: Field[];
     editRoute?: string;
     drillable?: boolean;
     onDelete: Function;
     apiController: string;
   }) {
     const router = useRouter();
-  const infoPath = \`/\${apiController}/info\`;
-
-  function formatValue(value: string | number | undefined) {
-    if (value && isDateTime(value)) {
-      return formatDate(value);
+    const infoPath = \`/\${apiController}/info\`;
+  
+    function formatValue(value: string | number | undefined) {
+      if (value && isDateTime(value)) {
+        return formatDate(value);
+      }
+      return value;
     }
-    return value;
-  }
+    function renderFields() {
+      return fields
+        .filter((field) => field.visibleOnList)
+        .map(({ isIdentifier, value }) => {
+          return drillable && isIdentifier ? (
+            <td
+              onClick={() =>
+                router.push({
+                  pathname: infoPath,
+                  query: {
+                    id,
+                  },
+                })
+              }
+              className="py-4 px-6 text-[#FFEECC] hover:underline cursor-pointer"
+            >
+              {formatValue(value) || ""}
+            </td>
+          ) : (
+            <td className="py-4 px-6">{formatValue(value) || ""}</td>
+          );
+        });
+    }
     return (
       <tr className="border-b text-white">
-      <td scope="row" className="py-4 px-6 font-medium whitespace-nowrap">
-        {formatValue(value1) || ""}
-      </td>
-      {drillable ? (
-        <td
-          onClick={() =>
-            router.push({
-              pathname: infoPath,
-              query: {
-                id: value1,
-              },
-            })
-          }
-          className="py-4 px-6 text-[#FFEECC] hover:underline cursor-pointer"
-        >
-          {formatValue(value2) || ""}
+        {renderFields()}
+        <td className="py-4 px-6">
+          <Link
+            href={editRoute || ""}
+            legacyBehavior
+            className="border border-white"
+          >
+            <a className="font-medium text-[#FFEECC] hover:underline cursor-pointer">
+              Edit
+            </a>
+          </Link>
         </td>
-      ) : (
-        <td className="py-4 px-6">{formatValue(value2) || ""}</td>
-      )}
-      <td className="py-4 px-6">{formatValue(value3)}</td>
-      {value4 ? <td className="py-4 px-6">{formatValue(value4) || ""}</td> : null}
-      {value5 ? <td className="py-4 px-6">{formatValue(value5) || ""}</td> : null}
-      <td className="py-4 px-6">
-        <Link
-          href={editRoute || ""}
-          legacyBehavior
-          className="border border-white"
-        >
-          <a className="font-medium text-[#FFEECC] hover:underline cursor-pointer">
-            Edit
+        <td className="py-4 px-6">
+          <a
+            onClick={() => onDelete(id)}
+            className="font-medium text-[#FFEECC] hover:underline cursor-pointer"
+          >
+            Delete
           </a>
-        </Link>
-      </td>
-      <td className="py-4 px-6">
-        <a
-          onClick={() => onDelete(id)}
-          className="font-medium text-[#FFEECC] hover:underline cursor-pointer"
-        >
-          Delete
-        </a>
-      </td>
-    </tr>
+        </td>
+      </tr>
     );
   }
+  
 `,
   instance: () => {
     return ``;

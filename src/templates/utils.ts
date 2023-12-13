@@ -36,6 +36,8 @@ export const GENERAL_UTILS = () => {
   return {
     contents: `
     import moment from "moment";
+    import { MODEL_SETUP } from "../constants/general.constants";
+import { Field } from "../types/general.types";
 export function parseDate(date: Date) {
   return (
     [
@@ -73,11 +75,29 @@ export function getCurrentDateTime() {
     time: moment(currentDateTime).format("hh:mm:ss"),
   };
 }
-export function convertToDateTimeInputObject(dateTime:string) {
+export function convertToDateTimeInputObject(dateTime: string) {
   return {
     date: moment(dateTime).format("YYYY-MM-DD"),
     time: moment(dateTime).format("hh:mm:ss"),
   };
+}
+export function getFieldProperties(fieldName: string, modelName: string):Field {
+  return (
+    getModel(modelName)?.fields?.find((field) => field.name == fieldName) || {
+      isIdentifier: false,
+      name: fieldName,
+      required: false,
+      type: "unknown",
+      visibleOnList: false,
+    }
+  );
+}
+
+export function getHeaderProperties(modelName: string) {
+  return getModel(modelName)?.fields.map((field) => field.name);
+}
+export function getModel(modelName: string) {
+  return MODEL_SETUP.find((model) => model.name == modelName);
 }
     `,
     fileName: "general.utils.ts",
