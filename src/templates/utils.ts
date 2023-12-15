@@ -38,6 +38,7 @@ export const GENERAL_UTILS = () => {
     import moment from "moment";
     import { MODEL_SETUP } from "../constants/general.constants";
 import { Field } from "../types/general.types";
+var pluralize = require("pluralize");
 export function parseDate(date: Date) {
   return (
     [
@@ -97,8 +98,13 @@ export function getHeaderProperties(modelName: string) {
   return getModel(modelName)?.fields.map((field) => field.name);
 }
 export function getModel(modelName: string) {
-  return MODEL_SETUP.find((model) => model.name == modelName);
+  return MODEL_SETUP.find(
+    (model) =>
+      pluralize.singular(model.name.toLowerCase()) ==
+      pluralize.singular(modelName.toLowerCase())
+  );
 }
+
     `,
     fileName: "general.utils.ts",
     path: "path",

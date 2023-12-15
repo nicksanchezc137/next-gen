@@ -260,7 +260,7 @@ export const TextArea = {
     textareaType="text"
     textareaRequired={true}
     textareaName="${field.name}"
-    onTextareaChange={(event)=>setFormData({...formData,description:event.target.value})}
+    onTextareaChange={(event)=>setFormData({...formData,${field.name}:event.target.value})}
     textareaValue={formData["${field.name}"]}
   />`;
   },

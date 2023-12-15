@@ -327,7 +327,7 @@ const READ_PAGE_TEMPLATE = (modelName: string, childModels?: string[]) => {
 function childMenus(childModels: string[]) {
   return childModels.map((childModel) => {
     let childMenuName = pluralize.plural(childModel).toLocaleLowerCase();
-    return `   <h1
+    return `<h1
     onClick={() => setActiveModel("${childMenuName}")}
     className={\`cursor-pointer text-[2.5rem] font-bold \${
       activeModel == "${childMenuName}" ? "" : "text-[#A3BEAE]"
@@ -335,7 +335,7 @@ function childMenus(childModels: string[]) {
   >
     ${capitalizeFirstLetter(childMenuName)}
   </h1>`;
-  });
+  }).join("");
 }
 const INFO_PAGE_TEMPLATE = (modelName: string, childModels: string[]) => {
   const defaultChildModel = pluralize

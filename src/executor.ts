@@ -40,7 +40,7 @@ export default class Executor {
     const utilsGenerator = new UtilsGenerator();
     this.generateUtilFiles(utilsGenerator.generateUtilsCode());
 
-    const constantsGenerator = new ConstantsCodeGenerator();
+    const constantsGenerator = new ConstantsCodeGenerator(this.mainConfig.models);
     this.generateConstantsFiles(constantsGenerator.getConstantsCode());
 
     const typesGenerator = new TypesGenerator();
