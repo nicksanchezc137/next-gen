@@ -176,6 +176,7 @@ export const MODEL_CLASS = (modelName: string, modelMethods: string) => {
   return {
     contents: `import { sql } from "../db/db";
     type GenericObject = { [key: string]: any };
+    import { getJoinQuery } from "../../../utils/general.utils";
     
     export class ${capitalizeFirstLetter(lowerCaseModelName)}Model {
       constructor() {}
@@ -414,8 +415,11 @@ export const FIND_ALL_MODEL_METHOD = (modelName: string) => {
   return `
     findByAll(): Promise<GenericObject> {
     return new Promise((resolve, reject) => {
+      const joinQuery = getJoinQuery("${pluralize.plural(
+        lowerCaseModelName
+      )}");
         sql.query(
-          \`SELECT * FROM ${pluralize.plural(
+          \`SELECT * \${joinQuery} FROM ${pluralize.plural(
             lowerCaseModelName
           )} WHERE deleted_at is NULL\`,
           (err: GenericObject, res: GenericObject) => {
@@ -436,8 +440,11 @@ export const FIND_ONE_MODEL_METHOD = (modelName: string) => {
   return `
     findById(id: number): Promise<GenericObject> {
       return new Promise((resolve, reject) => {
+        const joinQuery = getJoinQuery("${pluralize.plural(
+          lowerCaseModelName
+        )}");
         sql.query(
-          \`SELECT * FROM ${pluralize.plural(
+          \`SELECT * \${joinQuery} FROM ${pluralize.plural(
             lowerCaseModelName
           )} WHERE id = \${id} AND deleted_at is NULL\`,
           (err: GenericObject, res: GenericObject) => {

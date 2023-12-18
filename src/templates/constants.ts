@@ -6,7 +6,7 @@ export const GENERAL_CONSTANTS = (models: Model[]) => {
       export const MODEL_SETUP = ${JSON.stringify(models)};
     
       
-      export const TIME_STAMP_FIELDS = ["updated_at", "deleted_at", "created_at"];
+      export const TIME_STAMP_FIELDS = ["updated_at", "created_at"];
       
       `,
     fileName: "general.constants.ts",

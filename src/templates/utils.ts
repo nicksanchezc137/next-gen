@@ -103,6 +103,43 @@ export function getModel(modelName: string) {
       pluralize.singular(model.name.toLowerCase()) ==
       pluralize.singular(modelName.toLowerCase())
   );
+  
+}
+export function getJoinQuery(modelName: string): string {
+  let parentModels = getParentModelNames(modelName);
+  if (!parentModels || !parentModels.length) return "";
+  return (
+    parentModels
+      ?.map(
+        (parentModel) =>
+          \`,(select name from \${parentModel} where id = \${modelName}.\`\${getParentIdColumnName(
+            parentModel
+          )}\` ) as \${getParentModelIdentifier(parentModel)}\`
+      )
+      .join("") || ""
+  );
+}
+export function getParentIdColumnName(parentModel: string) {
+  return \`\${pluralize.singular(parentModel)}_id\`;
+}
+function getParentModelNames(modelName: string) {
+  return MODEL_SETUP.find((model) => model.name == modelName)?.belongsTo || [];
+}
+export function getParentModelIdentifier(parentModel: string) {
+  let identifierField = getModel(parentModel)?.fields.find(
+    (field) => field.isIdentifier
+  );
+  if (identifierField) {
+    return \`\${pluralize.singular(parentModel)}_\${identifierField.name}\`;
+  } else {
+    return \`\${pluralize.singular(parentModel)}_identifier\`;
+  }
+}
+
+export function getParentIdentifierNames(modelName: string) {
+  return getParentModelNames(modelName).map((parentModelName) =>
+    getParentModelIdentifier(parentModelName)
+  );
 }
 
     `,

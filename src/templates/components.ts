@@ -129,7 +129,10 @@ export const Select = {
 };
 export const DateTimePicker = {
   contents: `import React, { ChangeEvent, useEffect, useState } from "react";
-  import {  formatServerDate } from "../utils/general.utils";
+  import {
+    convertToDateTimeInputObject,
+    formatServerDate,
+  } from "../utils/general.utils";
   
   export default function DateTimePicker({
     onValueChange,
@@ -140,48 +143,56 @@ export const DateTimePicker = {
     dateTimeInputRequired,
   }: {
     onValueChange: Function;
-    initialValue: { date: string; time: string };
+    initialValue: string;
     dateTimeInputContainerClassName?: string;
     labelClassName?: string;
     dateTimeInputLabel?: string;
     dateTimeInputRequired?: boolean;
   }) {
-    const [dateTime, setDateTime] = useState(initialValue);
+    const [dateTime, setDateTime] = useState({ date: "", time: "" });
+    const { date, time } = convertToDateTimeInputObject(initialValue);
+    useEffect(() => {
+      setDateTime({
+        date,
+        time,
+      });
+    }, [initialValue]);
   
     function onChange(event: ChangeEvent<HTMLInputElement>) {
       setDateTime({ ...dateTime, [event.target.name]: event.target.value });
     }
     useEffect(() => {
-      const { date, time } = dateTime;
-      onValueChange(formatServerDate(\`\${date} \${time}\`));
+      if (dateTime?.date && dateTime?.time) {
+        const { date, time } = dateTime;
+        onValueChange(formatServerDate(\`\${date} \${time}\`));
+      }
     }, [dateTime]);
   
     return (
       <div className={dateTimeInputContainerClassName}>
-        <label className={\`w-full text-white \${labelClassName || ""}\`}>
+      <label className={\`w-full text-white \${labelClassName || ""}\`}>
           {dateTimeInputLabel || ""}
           {dateTimeInputRequired ? "*" : ""}
         </label>
         <div className="w-full">
-        <input
-          value={dateTime.date}
-          onChange={onChange}
-          name="date"
-          className="w-1/2 border-b border-[#A3BEAE] outline-none bg-[#5B8B6C] text-white placeholder-[#A3BEAE]"
-          type="date"
-        />
-        <input
-          value={dateTime.time}
-          onChange={onChange}
-          name="time"
-          className="w-1/2 border-b border-[#A3BEAE] outline-none bg-[#5B8B6C] text-white placeholder-[#A3BEAE]"
-          type="time"
-        />
+          <input
+            value={dateTime?.date || ""}
+            onChange={onChange}
+            name="date"
+            className="w-1/2 border-b border-[#A3BEAE] outline-none bg-[#5B8B6C] text-white placeholder-[#A3BEAE]"
+            type="date"
+          />
+          <input
+            value={dateTime?.time || ""}
+            onChange={onChange}
+            name="time"
+            className="w-1/2 border-b border-[#A3BEAE] outline-none bg-[#5B8B6C] text-white placeholder-[#A3BEAE]"
+            type="time"
+          />
         </div>
-       
       </div>
     );
-  }
+  }  
   
 `,
   instance: (field: Field, isCreate: boolean) => {
@@ -280,6 +291,7 @@ export const Table = {
     getFieldProperties,
     getHeaderProperties,
     getModel,
+    getParentIdentifierNames,
   } from "../utils/general.utils";
   import { TIME_STAMP_FIELDS } from "../constants/general.constants";
   import { Field } from "../types/general.types";
@@ -339,6 +351,13 @@ export const Table = {
       });
       return enhancedFields;
     };
+    function isVisibleOnList(fieldInfo: Field) {
+      return TIME_STAMP_FIELDS.includes(fieldInfo?.name || "") //TODO: merge label and name
+        ? getModel(apiController)?.includeTimeStamps
+        : getParentIdentifierNames(apiController).includes(fieldInfo.name)
+        ? true
+        : fieldInfo?.visibleOnList;
+    }
     function deleteRecord(id: number) {
       handleRequest(\`\${apiController}?id=\${id}\`, "DELETE", {}).then((user: any) =>
         router.reload()
