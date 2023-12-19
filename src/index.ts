@@ -41,7 +41,7 @@ function generateProjectFiles(config: MainConfig) {
 async function generateProject(projectName: string, callBack: Function) {
   console.log(`Generating Next JS project in folder ${projectName}...`);
   runShellCommand(
-    `create-next-app ${projectName} --eslint --ts --use-npm -S && cd ${projectName} && npm i next@13.1.1`, //TODO: Next JS automatically generates version 14 of Next JS. We need to specify it to 13.1.1 to avoid incompatibility with code.
+    `create-next-app ${projectName} --eslint --ts --use-npm -S && cd ${projectName} && npm i next@13.1.1 && npm run dev`, //TODO: Next JS automatically generates version 14 of Next JS. We need to specify it to 13.1.1 to avoid incompatibility with code.
     (error: string, stderr: string, stdout: string) => {
       console.log(error, stderr);
       if (!error) {
