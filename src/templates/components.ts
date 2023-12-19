@@ -344,8 +344,7 @@ export const Table = {
           name: key,
           value: row[key],
           isIdentifier: fieldInfo?.isIdentifier,
-          visibleOnList:TIME_STAMP_FIELDS.includes(fieldInfo?.name  || "")? //TODO: merge label and name
-            getModel(apiController)?.includeTimeStamps:fieldInfo?.visibleOnList,
+          visibleOnList:isVisibleOnList(fieldInfo),
           required: fieldInfo?.required,
         });
       });

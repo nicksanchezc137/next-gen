@@ -112,9 +112,9 @@ export function getJoinQuery(modelName: string): string {
     parentModels
       ?.map(
         (parentModel) =>
-          \`,(select name from \${parentModel} where id = \${modelName}.\`\${getParentIdColumnName(
+          \`,(select name from \${parentModel} where id = \${modelName}.\${getParentIdColumnName(
             parentModel
-          )}\` ) as \${getParentModelIdentifier(parentModel)}\`
+          )} ) as \${getParentModelIdentifier(parentModel)}\`
       )
       .join("") || ""
   );
