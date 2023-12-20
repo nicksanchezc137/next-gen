@@ -150,13 +150,14 @@ export const DateTimePicker = {
     dateTimeInputRequired?: boolean;
   }) {
     const [dateTime, setDateTime] = useState({ date: "", time: "" });
-    const { date, time } = convertToDateTimeInputObject(initialValue);
+   
     useEffect(() => {
+      const { date, time } = convertToDateTimeInputObject(initialValue);
       setDateTime({
         date,
         time,
       });
-    }, [initialValue]);
+    }, []);
   
     function onChange(event: ChangeEvent<HTMLInputElement>) {
       setDateTime({ ...dateTime, [event.target.name]: event.target.value });
@@ -339,7 +340,6 @@ export const Table = {
       let enhancedFields: any = [];
       Object.keys(row).forEach((key, i) => {
         const fieldInfo = getFieldProperties(key, apiController);
-        console.log(key,fieldInfo )
         enhancedFields.push({
           name: key,
           value: row[key],
@@ -379,7 +379,8 @@ export const Table = {
       <table className="w-full text-sm text-left text-gray-500">
       <TableHead headers={headerProps()} />
         <tbody>
-        {rows?.map((value: GenericObject) => (
+        {rows && rows.length ? (
+          rows?.map((value: GenericObject) => (
             <TableRow
               drillable={drillable}
               apiController={apiController}
@@ -389,7 +390,12 @@ export const Table = {
               id={value.id}
               key={value.id}
             />
-          ))}
+            ))
+            ) : (
+              <tr className="text-white font-bold absolute h-60 w-[5rem] m-auto left-0 right-0">
+                <td>No Data </td>
+              </tr>
+            )}
         </tbody>
       </table>
       <div className="text-white font-bold w-full flex justify-between">
@@ -428,12 +434,12 @@ export const TableHead = {
     return (
       <thead className="text-xs text-white uppercase">
         <tr>
-          {headers
-            .map((name) => (
-              <th scope="col" className="py-3 px-6">
-                {name || ""}
-              </th>
-            ))}
+        {headers
+          .map((name,i) => (
+            <th scope="col" className="py-3 px-6" key = {i+name}>
+              {name || ""}
+            </th>
+          ))}
   
           <th scope="col" className="py-3 px-6">
             Action

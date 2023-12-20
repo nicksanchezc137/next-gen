@@ -123,7 +123,7 @@ export function getParentIdColumnName(parentModel: string) {
   return \`\${pluralize.singular(parentModel)}_id\`;
 }
 function getParentModelNames(modelName: string) {
-  return MODEL_SETUP.find((model) => model.name == modelName)?.belongsTo || [];
+  return MODEL_SETUP.find((model) => model.name == modelName)?.belongsTo.map((parentModelName)=>pluralize.plural(parentModelName)) || [];
 }
 export function getParentModelIdentifier(parentModel: string) {
   let identifierField = getModel(parentModel)?.fields.find(
