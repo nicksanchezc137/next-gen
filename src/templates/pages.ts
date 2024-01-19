@@ -95,7 +95,7 @@ const CREATE_PAGE_TEMPLATE = (
           onSubmit={onSubmit}
           className="w-[30rem] flex items-center flex-col px-4 text-black"
         >
-            <h1 className="font-bold text-white text-[2.5rem]">Create ${modelName}</h1>
+            <h1 className="font-bold text-white text-[2.5rem]">Create ${pluralize.singular(modelName)}</h1>
 
           {PARENT_MODELS.map((parentModel, i) => {
             const selectKey = \`\${pluralize.singular(parentModel)}_id\`;

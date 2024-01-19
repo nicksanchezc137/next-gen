@@ -21,6 +21,9 @@ function getChildModels(models: Model[], modelName: string): string[] {
   });
   return childModels;
 }
+export function hasParentModels(model: Model) {
+  return model.belongsTo.length > 0;
+}
 export {
   capitalizeFirstLetter,
   getModelChildrenFromModelParent,

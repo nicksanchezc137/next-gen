@@ -82,13 +82,14 @@ if (args[0] == "generate") {
   runShellCommand(
     "git clone https://github.com/nicksanchezc137/json-generator.git && cd json-generator && npm install && npm run dev",
     () => {
+      console.log("App running on http://localhost:8087");
       const URL = "http://localhost:8087";
       launchOnBrowser(URL);
     }
   );
 }
 function launchOnBrowser(urlToOpen: string) {
-  // Determine the appropriate command based on the operating system
+  //TODO: Determine the appropriate command based on the operating system
   let openCommand;
   if (platform === "darwin") {
     openCommand = "open";

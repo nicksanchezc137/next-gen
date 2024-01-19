@@ -1,5 +1,5 @@
 import { Field, MainConfig, Model } from "../types";
-import { capitalizeFirstLetter } from "../utils/general.utils";
+import { capitalizeFirstLetter, hasParentModels } from "../utils/general.utils";
 var pluralize = require("pluralize");
 
 export const DB_CONFIG = (mainConfig: MainConfig) => {
@@ -105,12 +105,12 @@ export default function handler(
         }
         return;
       }
-      let queryObjString = JSON.stringify(req.query);
+      ${hasParentModels(model)?`let queryObjString = JSON.stringify(req.query);
       if (queryObjString.includes(ID_CHECK)) {
         const modelName = Object.keys(req.query).find((key)=>key.includes(ID_CHECK))?.split(ID_CHECK)[0];
         ${modelNameLoweCase}Controller.findAllBelongTo(req, res, modelName || "");
         return;
-      }
+      }`:""}
       ${
         model.operations.READ
           ? `${modelNameLoweCase}Controller.findAll(req, res);`
