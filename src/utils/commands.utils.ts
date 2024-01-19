@@ -13,9 +13,13 @@ export function runShellCommand(
     function (error: any, stdout: any, stderr: any) {
       if (stderr) {
         console.error("Error", stderr);
+        callBack(error, stderr, stdout);
+        return
       }
       if (error) {
         console.error("Error", error);
+        callBack(error, stderr, stdout);
+        return;
       }
       console.log(log);
       console.log(stdout);
