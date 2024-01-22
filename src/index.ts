@@ -79,6 +79,7 @@ if (args[0] == "generate") {
   launchProcess();
 } else if (args[0] == "ui") {
   console.log("cloning json-generator...");
+  console.log("Project Generating wizard running on http://localhost:8087")
   runShellCommand(
     "git clone https://github.com/nicksanchezc137/json-generator.git && cd json-generator && npm install && npm run dev",
     () => {

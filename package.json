@@ -1,6 +1,6 @@
 {
   "name": "next-gen-code-generator",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "FastTrack your projects with a powerful CLI tool that auto-generates the most important code for you.",
   "main": "./bin/index.js",
   "bin": {
