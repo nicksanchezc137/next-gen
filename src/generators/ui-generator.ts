@@ -86,7 +86,7 @@ export class UIGenerator {
     return modelPagesMarkup;
   }
   generateHomePage() {
-    return HOME_PAGE();
+    return HOME_PAGE(this.models);
   }
 
   getAllPagesMarkUp(): MarkUp[] {

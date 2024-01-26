@@ -1,3 +1,4 @@
+import { Model } from "../types";
 import { capitalizeFirstLetter } from "../utils/general.utils";
 import { Table } from "./components";
 
@@ -31,7 +32,7 @@ const CREATE_PAGE_TEMPLATE = (
     import Button from "../../components/Button";
     import Select from "../../components/Select";
     import DateTimePicker from "../../components/DateTimePicker";
-    import { getCurrentDateTime } from "../../utils/general.utils";
+    import { getCurrentDateTime, validateForm } from "../../utils/general.utils";
     import Textarea from "../../components/TextArea";
     var pluralize = require("pluralize"); 
     type GenericObject = { [key: string]: any };
@@ -42,7 +43,7 @@ const CREATE_PAGE_TEMPLATE = (
       const [parentModelOptions, setParentModelOptions] = useState<GenericObject>(
         {}
       );
-    
+      const [validationError, setValidationError] = useState("");
       const handleChange = (
         event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
       ) => {
@@ -50,11 +51,7 @@ const CREATE_PAGE_TEMPLATE = (
       };
       function onSubmit(formEvent: FormEvent) {
         formEvent.preventDefault();
-        handleRequest("${controllerName}", "POST", formData)
-        .then((resp) => {
-          router.push("/${controllerName}");
-        })
-        .catch((err) => alert(err));
+        validateFields();
       }
       useEffect(() => {
         Promise.all(
@@ -87,15 +84,35 @@ const CREATE_PAGE_TEMPLATE = (
             .catch((err) => reject(err));
         });
       }
+      function saveData() {
+        handleRequest("${controllerName}", "POST", formData)
+        .then((resp) => {
+          router.push("/${controllerName}");
+        })
+        .catch((err) => alert(err));
+      }
+      function onBack(e: FormEvent) {
+        e.preventDefault();
+        router.back();
+      }
+      function validateFields() {
+        let formErrors = validateForm("applications", formData);
+        if (formErrors.length) {
+          setValidationError(\`Missing value(s):\${formErrors.join(",")}.\`);
+        } else {
+          saveData();
+        }
+      }
     
       return (
-        <MainLayout>
+        <MainLayout hideSideMenu>
         <div className="w-full min-h-[100vh] flex items-start justify-center">
         <form
           onSubmit={onSubmit}
-          className="w-[30rem] flex items-center flex-col px-4 text-black"
+          className="w-[30rem] flex items-start flex-col px-4 text-black"
         >
             <h1 className="font-bold text-white text-[2.5rem]">Create ${pluralize.singular(modelName)}</h1>
+            <div className="text-[#FF6347] mt-3">{validationError}</div>
 
           {PARENT_MODELS.map((parentModel, i) => {
             const selectKey = \`\${pluralize.singular(parentModel)}_id\`;
@@ -121,9 +138,9 @@ const CREATE_PAGE_TEMPLATE = (
             <Button
               isLight
               caption="Back"
-              onButtonClick={() => router.back()}
+              onButtonClick={onBack}
             />
-            <Input inputType="submit" inputClassName="w-full cursor-pointer" />
+            <Input inputValue="Submit" inputType="submit" inputClassName="w-full cursor-pointer" />
           </div>
           </form>
         </div>
@@ -163,8 +180,8 @@ const UPDATE_PAGE_TEMPLATE = (
     import Button from "../../components/Button";
     import Select from "../../components/Select";
     import DateTimePicker from "../../components/DateTimePicker";
-    import { getCurrentDateTime } from "../../utils/general.utils";
-    import Textarea from "../../components/TextArea";
+    import { getCurrentDateTime, validateForm } from "../../utils/general.utils";
+    import Textarea from "../../components/TextArea";  
     var pluralize = require("pluralize");
 
     type GenericObject = { [key: string]: any };
@@ -177,6 +194,7 @@ const UPDATE_PAGE_TEMPLATE = (
       const [parentModelOptions, setParentModelOptions] = useState<GenericObject>(
         {}
       );
+      const [validationError, setValidationError] = useState("");
       useEffect(() => {
         if (router.isReady) {
           handleRequest(\`${controllerName}?id=\${id}\`, "GET", {}).then((resp: any) => {
@@ -220,21 +238,38 @@ const UPDATE_PAGE_TEMPLATE = (
       };
       function onSubmit(formEvent: FormEvent) {
         formEvent.preventDefault();
+        validateFields();
+      }
+      function saveData(){
         handleRequest(\`${controllerName}?id=\${id}\`, "PUT", formData)
           .then((resp) => {
             router.push("/${controllerName}");
           })
           .catch((err) => alert(err));
       }
+      function onBack(e: FormEvent) {
+        e.preventDefault();
+        router.back();
+      }
+      function validateFields() {
+        let formErrors = validateForm("applications", formData);
+        if (formErrors.length) {
+          setValidationError(\`Missing value(s):\${formErrors.join(",")}.\`);
+        } else {
+          saveData();
+        }
+      }
     
       return (
-        <MainLayout>
+        <MainLayout hideSideMenu>
         <div className="w-full min-h-[100vh] flex items-start justify-center">
           <form
             onSubmit={onSubmit}
             className="w-[30rem] flex items-start flex-col px-4 text-black"
           >
           <h1 className="text-white text-[2.5rem] font-bold">Edit ${modelName}</h1>
+          <div className="text-[#FF6347] mt-3">{validationError}</div>
+          
 
           {PARENT_MODELS.map((parentModel, i) => {
             const selectKey = \`\${pluralize.singular(parentModel)}_id\`;
@@ -257,13 +292,9 @@ const UPDATE_PAGE_TEMPLATE = (
              ${fieldsMarkUp}
     
             <div className="flex mt-10 justify-between w-full">
-            <Button
-              isLight
-              caption="Back"
-              onButtonClick={() => router.back()}
-            />
+            <Button isLight caption="Back" onButtonClick={onBack} />
 
-            <Input inputType="submit" inputClassName="w-full cursor-pointer" />
+            <Input inputType="submit" inputValue="Submit" inputClassName="w-full cursor-pointer" />
           </div>
           </form>
         </div>
@@ -303,7 +334,7 @@ const READ_PAGE_TEMPLATE = (modelName: string, childModels?: string[]) => {
     
       return (
         <MainLayout>
-        <div className="w-full min-h-[100vh] ml-[10rem] flex flex-col items-start justify-start p-4 mt-[1.5rem]">
+        <div className="w-full ml-7 flex flex-col items-start justify-start">
         <div className="w-full flex items-center justify-between w-full">
           <h1 className="text-white text-[2.5rem] font-bold">${controllerName}</h1>
           <Button caption="Add ${modelName}" onButtonClick={()=>router.push("/${controllerName}/create")}/>
@@ -380,7 +411,7 @@ const INFO_PAGE_TEMPLATE = (modelName: string, childModels: string[]) => {
     
       return (
         <MainLayout>
-          <div className="w-full min-h-[100vh] ml-[10rem] flex flex-col items-start justify-start p-4 mt-[1.5rem]">
+          <div className="w-full ml-7 flex flex-col items-start justify-start">
             <div className="w-full flex items-start justify-between text-[#FFEECC]">
               ${childMenus(childModels)}
             </div>
@@ -419,17 +450,40 @@ const MAIN_APP = () => {
     modelName: "",
   };
 };
-
-const HOME_PAGE = () => {
+function getModelEntities(models: Model[]) {
+  return models
+    .map((model) => {
+      return `{ name: "${pluralize.plural(
+        model.name
+      )}", controllerName: "/${pluralize.plural(model.name).toLowerCase()}" }`;
+    })
+    .join(",");
+}
+const HOME_PAGE = (models:Model[]) => {
   return {
     fileName: "index.tsx",
     contents: `import React from 'react'
     import MainLayout from "../components/MainLayout";
-    
+    import Tile from "../components/Tile";
+    import { PROJECT_NAME } from "../constants/general.constants";
+
+    const entities = [
+      ${getModelEntities(models)}
+    ];
+
     export default function Home() {
       return (
-        <MainLayout>
-        <></>
+        <MainLayout hideSideMenu>
+        <section className="w-full flex flex-col">
+        <h1 className="text-white font-bold text-[2rem] text-center">
+          welcome to <span className="text-[#FFEECC]">{PROJECT_NAME}</span>
+        </h1>
+        <div className="flex justify-between w-full flex-wrap mt-[2rem]">
+          {entities.map((entity) => (
+            <Tile key ={entity.name} {...entity} />
+          ))}
+        </div>
+        </section>
         </MainLayout>
       )
     }

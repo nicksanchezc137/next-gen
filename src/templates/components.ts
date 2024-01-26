@@ -462,7 +462,7 @@ export const TableRow = {
   contents: `import Link from "next/link";
   import { useRouter } from "next/router";
   import React from "react";
-  import { formatDate, isDateTime } from "../utils/general.utils";
+  import { formatDate, isDateTime,trimText } from "../utils/general.utils";
   import { Field } from "../types/general.types";
   
   export default function TableRow({
@@ -487,14 +487,15 @@ export const TableRow = {
       if (value && isDateTime(value)) {
         return formatDate(value);
       }
-      return value;
+      return trimText(value || "",36);
     }
     function renderFields() {
       return fields
         .filter((field) => field.visibleOnList)
-        .map(({ isIdentifier, value }) => {
+        .map(({ isIdentifier, value },i) => {
           return drillable && isIdentifier ? (
             <td
+            key ={\`\${i}-\${value}\`}
               onClick={() =>
                 router.push({
                   pathname: infoPath,
@@ -508,7 +509,7 @@ export const TableRow = {
               {formatValue(value) || ""}
             </td>
           ) : (
-            <td className="py-4 px-6">{formatValue(value) || ""}</td>
+            <td key ={\`\${i}-\${value}\`} className="py-4 px-6">{formatValue(value) || ""}</td>
           );
         });
     }
@@ -595,11 +596,11 @@ export const Tile = {
       });
     }, []);
     return (
-      <Link href={\`/\${controllerName}/\`} legacyBehavior>
-        <div className="bg-indigo-600 w-[10rem] h-[10rem] rounded-md flex items-center justify-center flex-col cursor-pointer">
-          <span className="text-white font-bold text-[1.5rem]">{name}</span>
-          <span className="text-white font-bold text-[1.2rem]">{count}</span>
-        </div>
+      <Link href={controllerName} legacyBehavior>
+      <div className="bg-[#5B8B6C] border border-solid border-[#A3BEAE] hover:border-[#FFEECC] text-white hover:text-[#FFEECC] w-[10rem] h-[10rem] rounded-md flex items-center justify-center flex-col cursor-pointer p-5 m-4">
+      <span className="font-bold text-[1.1rem]">{name}<span className="ml-2">→</span></span>
+      <span className="text-[1rem]">count:{count}</span>
+    </div>
       </Link>
     );
   }
@@ -629,18 +630,22 @@ export const MainLayout = (models: Model[]) => {
   
   export default function MainLayout({
     children,
+    hideSideMenu,
   }: {
     children: JSX.Element | JSX.Element[];
+    hideSideMenu?: boolean;
   }) {
     return (
-      <div className="bg-[#5B8B6C] w-full flex items-center justify-center">
-        <div className="xl:max-w-[75rem] md:w-[75%] w-full flex items-start mt-[4rem] mb-10">
+      <div className="bg-[#5B8B6C] w-full flex justify-center min-h-[100vh]">
+      <div className="lg:w-[65rem] w-[40rem] m-auto flex justify-between items-start mb-10 mt-[2.5rem]">
+      {!hideSideMenu ? (
           <SideMenu
             menus={[
               ${getModelMenus(models)}
             ]}
           />
-          {children}
+          ) : null}
+          <main className="w-full">{children}</main>
         </div>
       </div>
     );
@@ -659,6 +664,30 @@ export const SideMenu = {
   import Link from "next/link";
   import { useRouter } from "next/router";
   
+  const MenuItem = ({
+    destination,
+    i,
+    label,
+    currentRoute,
+  }: {
+    destination: string;
+    i: number;
+    label: string;
+    currentRoute: string;
+  }) => {
+    return (
+      <li key={\`\${i}-\${label}\`}>
+        <Link
+          href={destination}
+          className={\`text-[1.5rem] \${
+            currentRoute == destination ? "text-white" : "text-[#A3BEAE]"
+          }\`}
+        >
+          {label}
+        </Link>
+      </li>
+    );
+  };
   export default function SideMenu({ menus }: { menus: Menu[] }) {
     const [currentRoute, setCurrentRoute] = useState("");
     const router = useRouter();
@@ -668,23 +697,19 @@ export const SideMenu = {
       }
     }, []);
     return (
-      <ul className="top-[15%] left-[8%] absolute">
-        {menus.map(({ destination, label }, i) => (
-          <li key={\`\${i}-\${label}\`}>
-            <Link
-              href={destination}
-              className={\`font-bold  text-[1.5rem] \${
-                currentRoute == destination ? "text-white" : "text-[#A3BEAE]"
-              }\`}
-            >
-              {label}
-            </Link>
-          </li>
+      <ul className="mt-4 self-start">
+        <MenuItem
+          i={0}
+          currentRoute={currentRoute}
+          destination="/"
+          label="Home"
+        />
+        {menus.map((menu, i) => (
+          <MenuItem {...menu} i={i} currentRoute={currentRoute} />
         ))}
       </ul>
     );
-  }
-    
+  } 
 `,
   instance: "",
   fileName: "SideMenu.tsx",

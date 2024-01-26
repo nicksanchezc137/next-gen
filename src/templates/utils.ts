@@ -37,7 +37,7 @@ export const GENERAL_UTILS = () => {
     contents: `
     import moment from "moment";
     import { MODEL_SETUP } from "../constants/general.constants";
-import { Field } from "../types/general.types";
+import { Field, GeneralObject } from "../types/general.types";
 var pluralize = require("pluralize");
 export function parseDate(date: Date) {
   return (
@@ -141,8 +141,27 @@ export function getParentIdentifierNames(modelName: string) {
     getParentModelIdentifier(parentModelName)
   );
 }
-
-    `,
+export function validateForm(
+  apiControllerName: string,
+  formData: GeneralObject
+) {
+  let formErrors: string[] = [];
+  MODEL_SETUP.find(
+    (model) => model.name.toLowerCase() == apiControllerName.toLowerCase()
+  )?.fields.forEach((field) => {
+    if(field.required && !formData[field.name]){
+      formErrors.push(field.name);
+    }
+  });
+  return formErrors;
+}
+export function trimText(text:string | number, max:number){
+  if(text.toString().length > max){
+    return \`\${text.toString().substring(0,max)}...\`;
+  }else{
+    return text;
+  }
+}`,
     fileName: "general.utils.ts",
     path: "path",
   };

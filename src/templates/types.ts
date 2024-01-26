@@ -17,6 +17,9 @@ export const GENERAL_TYPES = () => {
         label:string;
         visibleOnList:boolean;
     }
+    export type GeneralObject ={
+      [key:string]:any
+    }
     
       `,
     fileName: "general.types.ts",

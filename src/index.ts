@@ -43,7 +43,6 @@ async function generateProject(projectName: string, callBack: Function) {
   runShellCommand(
     `create-next-app ${projectName} --eslint --ts --use-npm -S && cd ${projectName} && npm i next@13.1.1`, //TODO: Next JS automatically generates version 14 of Next JS. We need to specify it to 13.1.1 to avoid incompatibility with code.
     (error: string, stderr: string, stdout: string) => {
-      console.log(error, stderr);
       if (!error) {
         console.log("Next JS project created successfully ✔️");
         callBack();
