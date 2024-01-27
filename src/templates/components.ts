@@ -462,7 +462,7 @@ export const TableRow = {
   contents: `import Link from "next/link";
   import { useRouter } from "next/router";
   import React from "react";
-  import { formatDate, isDateTime, } from "../utils/general.utils";
+  import { formatDate, isDateTime, trimText} from "../utils/general.utils";
   import { Field } from "../types/general.types";
   
   export default function TableRow({
