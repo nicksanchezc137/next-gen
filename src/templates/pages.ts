@@ -96,7 +96,7 @@ const CREATE_PAGE_TEMPLATE = (
         router.back();
       }
       function validateFields() {
-        let formErrors = validateForm("applications", formData);
+        let formErrors = validateForm("/${controllerName}", formData);
         if (formErrors.length) {
           setValidationError(\`Missing value(s):\${formErrors.join(",")}.\`);
         } else {

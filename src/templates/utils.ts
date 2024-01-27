@@ -112,11 +112,16 @@ export function getJoinQuery(modelName: string): string {
     parentModels
       ?.map(
         (parentModel) =>
-          \`,(select name from \${parentModel} where id = \${modelName}.\${getParentIdColumnName(
+          \`,(select \${getParentModelIdentifier(parentModel)?.name} from \${parentModel} where id = \${modelName}.\${getParentIdColumnName(
             parentModel
-          )} ) as \${getParentModelIdentifier(parentModel)}\`
+          )} ) as \${getParentModelIdentifierName(parentModel)}\`
       )
       .join("") || ""
+  );
+}
+function getParentModelIdentifier(parentModel: string){
+  return getModel(parentModel)?.fields.find(
+    (field) => field.isIdentifier
   );
 }
 export function getParentIdColumnName(parentModel: string) {
@@ -125,10 +130,8 @@ export function getParentIdColumnName(parentModel: string) {
 function getParentModelNames(modelName: string) {
   return MODEL_SETUP.find((model) => model.name == modelName)?.belongsTo.map((parentModelName)=>pluralize.plural(parentModelName)) || [];
 }
-export function getParentModelIdentifier(parentModel: string) {
-  let identifierField = getModel(parentModel)?.fields.find(
-    (field) => field.isIdentifier
-  );
+export function getParentModelIdentifierName(parentModel: string) {
+  let identifierField = getParentModelIdentifier(parentModel);
   if (identifierField) {
     return \`\${pluralize.singular(parentModel)}_\${identifierField.name}\`;
   } else {
@@ -138,7 +141,7 @@ export function getParentModelIdentifier(parentModel: string) {
 
 export function getParentIdentifierNames(modelName: string) {
   return getParentModelNames(modelName).map((parentModelName) =>
-    getParentModelIdentifier(parentModelName)
+    getParentModelIdentifierName(parentModelName)
   );
 }
 export function validateForm(
