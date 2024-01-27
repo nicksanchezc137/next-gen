@@ -119,7 +119,7 @@ export function getJoinQuery(modelName: string): string {
       .join("") || ""
   );
 }
-function getParentModelIdentifier(parentModel: string){
+export function getParentModelIdentifier(parentModel: string){
   return getModel(parentModel)?.fields.find(
     (field) => field.isIdentifier
   );
