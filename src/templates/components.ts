@@ -201,7 +201,7 @@ export const DateTimePicker = {
     dateTimeInputLabel="${field.name}"
     dateTimeInputContainerClassName="w-full mt-10"
     initialValue={${
-      isCreate ? "getCurrentDateTime()" : `formData["${field.name}"]`
+      isCreate ? `\`\${getCurrentDateTime().date} \${getCurrentDateTime().time}` : `formData["${field.name}"]`
     }}
     onValueChange={(value: any) => setFormData({ ...formData })}
   />`;
@@ -462,7 +462,7 @@ export const TableRow = {
   contents: `import Link from "next/link";
   import { useRouter } from "next/router";
   import React from "react";
-  import { formatDate, isDateTime,trimText } from "../utils/general.utils";
+  import { formatDate, isDateTime, } from "../utils/general.utils";
   import { Field } from "../types/general.types";
   
   export default function TableRow({

@@ -32,7 +32,7 @@ const CREATE_PAGE_TEMPLATE = (
     import Button from "../../components/Button";
     import Select from "../../components/Select";
     import DateTimePicker from "../../components/DateTimePicker";
-    import { getCurrentDateTime, validateForm } from "../../utils/general.utils";
+    import { getCurrentDateTime, validateForm, getParentModelIdentifier } from "../../utils/general.utils";
     import Textarea from "../../components/TextArea";
     var pluralize = require("pluralize"); 
     type GenericObject = { [key: string]: any };
@@ -56,20 +56,20 @@ const CREATE_PAGE_TEMPLATE = (
       useEffect(() => {
         Promise.all(
           PARENT_MODELS.map((model) => fetchParentModelOptions(model))
-        ).then((resp) => {
-          let modelOptionsObj = {}
-          resp.forEach((modelOptions: any, i) => {
+        ).then((resp:GenericObject) => {
+          let modelOptionsObj = {};
+          resp.forEach((modelOptions: GenericObject[], i:number) => {
             modelOptionsObj = {
               ...modelOptionsObj,
               [PARENT_MODELS[i]]: modelOptions?.map(
-                ({ id, name }: { id: number; name: string }) => {
+                (option: GenericObject) => {
                   return {
-                    value: id,
-                    label: name,
+                    value: option["id"],
+                    label: option[getParentModelIdentifier(PARENT_MODELS[i])?.name || ""],
                   };
                 }
               ),
-            }
+            };
             setParentModelOptions(modelOptionsObj);
           });
         });
@@ -180,7 +180,7 @@ const UPDATE_PAGE_TEMPLATE = (
     import Button from "../../components/Button";
     import Select from "../../components/Select";
     import DateTimePicker from "../../components/DateTimePicker";
-    import { getCurrentDateTime, validateForm } from "../../utils/general.utils";
+    import { getCurrentDateTime, validateForm, getParentModelIdentifier } from "../../utils/general.utils";
     import Textarea from "../../components/TextArea";  
     var pluralize = require("pluralize");
 
@@ -205,20 +205,20 @@ const UPDATE_PAGE_TEMPLATE = (
       useEffect(() => {
         Promise.all(
           PARENT_MODELS.map((model) => fetchParentModelOptions(model))
-        ).then((resp) => {
-          let modelOptionsObj = {}
-          resp.forEach((modelOptions: any, i) => {
+        ).then((resp:GenericObject) => {
+          let modelOptionsObj = {};
+          resp.forEach((modelOptions: GenericObject[], i:number) => {
             modelOptionsObj = {
               ...modelOptionsObj,
               [PARENT_MODELS[i]]: modelOptions?.map(
-                ({ id, name }: { id: number; name: string }) => {
+                (option: GenericObject) => {
                   return {
-                    value: id,
-                    label: name,
+                    value: option["id"],
+                    label: option[getParentModelIdentifier(PARENT_MODELS[i])?.name || ""],
                   };
                 }
               ),
-            }
+            };
             setParentModelOptions(modelOptionsObj);
           });
         });
