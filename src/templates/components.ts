@@ -201,7 +201,7 @@ export const DateTimePicker = {
     dateTimeInputLabel="${field.name}"
     dateTimeInputContainerClassName="w-full mt-10"
     initialValue={${
-      isCreate ? `\`\${getCurrentDateTime().date} \${getCurrentDateTime().time}` : `formData["${field.name}"]`
+      isCreate ? `\`\${getCurrentDateTime().date} \${getCurrentDateTime().time}\`` : `formData["${field.name}"]`
     }}
     onValueChange={(value: any) => setFormData({ ...formData })}
   />`;
